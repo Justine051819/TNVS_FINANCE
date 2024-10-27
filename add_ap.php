@@ -89,7 +89,7 @@ $payment_due = "";
             </div>
         <?php endif; ?>
 
-        <form method="post" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <form method="post" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md pt-24">
             <div class="mb-3">
                 <label class="block text-white font-bold mb-2 bg-blue-500 p-2 rounded" for="account_name">Account Name</label>
                 <input type="text" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md">

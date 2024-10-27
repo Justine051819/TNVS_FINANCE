@@ -87,7 +87,7 @@
                                     <a class="text-gray-700 font-bold" href="approve_disbursement.php">Approved Disbursement</a>
                                 </li>
                                 <li class="mb-2">
-                                    <a class="text-gray-700 font-bold" href="#">Payroll Reports</a>
+                                    <a class="text-gray-700 font-bold" href="reject_disbursement.php">Rejected Disbursement</a>
                                 </li>
                             </ul>
                         </div>
@@ -194,10 +194,14 @@
                             <table class="min-w-full bg-white border border-gray-300">
                                 <thead>
                                     <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                                        <th class="py-3 px-6 text-left">Disbursement No.</th>
-                                        <th class="py-3 px-6 text-left">Supplier</th>
+                                        <th class="py-3 px-6 text-left">ID</th>
+                                        <th class="py-3 px-6 text-left">Account Name</th>
+                                        <th class="py-3 px-6 text-left">Requested Department</th>
+                                        <th class="py-3 px-6 text-left">Expense Categries</th>
                                         <th class="py-3 px-6 text-left">Amount</th>
-                                        <th class="py-3 px-6 text-left">Date</th>
+                                        <th class="py-3 px-6 text-left">Description</th>
+                                        <th class="py-3 px-6 text-left">Document</th>
+                                        <th class="py-3 px-6 text-left">Payment Due</th>
                                         <th class="py-3 px-6 text-left">Action</th>
                                     </tr>
                                 </thead>
@@ -216,23 +220,51 @@
                                     }
 
                                     // Handle approval action
-                                    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
-                                        $approveId = $_POST['approve_id'];
-                                        
-                                        // Insert into the ad table
-                                        $insert_sql = "INSERT INTO ad (id, account_name, requested_department, expense_categories, amount, description, document, payment_due) SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due FROM ap WHERE id = '$approveId'";
-                                        if ($conn->query($insert_sql) === TRUE) {
-                                            // After successful insertion, delete the row from Accounts Payable
-                                            $delete_sql = "DELETE FROM ap WHERE id = '$approveId'";
-                                            if ($conn->query($delete_sql) === TRUE) {
-                                                echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
-                                            } else {
-                                                echo "Error deleting record: " . $conn->error;
-                                            }
-                                        } else {
-                                            echo "Error inserting record: " . $conn->error; // Debugging
-                                        }
-                                    }
+                                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+                                      // Approve logic
+                                      if (isset($_POST['approve_id'])) {
+                                          $approveId = $_POST['approve_id'];
+                                          
+                                          // Insert into the approved disbursement (ad) table
+                                          $insert_sql = "INSERT INTO ad (id, account_name, requested_department, expense_categories, amount, description, document, payment_due)
+                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due FROM ap WHERE id = '$approveId'";
+                                          
+                                          if ($conn->query($insert_sql) === TRUE) {
+                                              // After successful insertion, delete the row from Accounts Payable
+                                              $delete_sql = "DELETE FROM ap WHERE id = '$approveId'";
+                                              if ($conn->query($delete_sql) === TRUE) {
+                                                  echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
+                                              } else {
+                                                  echo "Error deleting record: " . $conn->error;
+                                              }
+                                          } else {
+                                              echo "Error inserting record: " . $conn->error;
+                                          }
+                                      }
+                                  
+                                      // Reject logic
+                                      if (isset($_POST['reject_id'])) {
+                                          $rejectId = $_POST['reject_id'];
+                                          
+                                          // Insert into the rejected disbursement table
+                                          $insert_sql = "INSERT INTO rd (id, account_name, requested_department, expense_categories, amount, description, document, payment_due)
+                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due FROM ap WHERE id = '$rejectId'";
+                                          
+                                          if ($conn->query($insert_sql) === TRUE) {
+                                              // After successful insertion, delete the row from Accounts Payable
+                                              $delete_sql = "DELETE FROM ap WHERE id = '$rejectId'";
+                                              if ($conn->query($delete_sql) === TRUE) {
+                                                  echo "<div class='bg-red-500 text-white p-4 rounded'>Disbursement Rejected!</div>";
+                                              } else {
+                                                  echo "Error deleting record: " . $conn->error;
+                                              }
+                                          } else {
+                                              echo "Error inserting record: " . $conn->error;
+                                          }
+                                      }
+                                  }
+                                  
 
                                     // Fetch disbursement records
                                     $sql = "SELECT * FROM ap";
@@ -253,7 +285,11 @@
                                             echo "<td class='py-3 px-6 text-left'>
                                                     <form method='POST' action=''>
                                                         <input type='hidden' name='approve_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-blue-500 text-white px-2 py-1 rounded'>Approve</button>
+                                                        <button type='submit' class='bg-blue-500 text-white px-2 py-1 mb-2 rounded'>Approve</button>
+                                                    </form>
+                                                     <form method='POST' action=''>
+                                                        <input type='hidden' name='reject_id' value='{$row['id']}'>
+                                                        <button type='submit' class='bg-red-500 text-white px-2 py-1 rounded'>Reject</button>
                                                     </form>
                                                   </td>";
                                             echo "</tr>";

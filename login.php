@@ -1,4 +1,6 @@
 <?php
+session_start(); // Start session at the top
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $servername = "127.0.0.1:3308"; 
     $usernameDB = "root"; 
@@ -24,10 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $result->fetch_assoc(); 
         
         if (password_verify($password, $user['password'])) {
-            session_start();
+            // Set session variables upon successful login
             $_SESSION['users_username'] = $username; 
-            header("Location: TNVSFinance.html"); 
-            exit(); 
+            $_SESSION['logged_in'] = true;
+            
+            header("Location: TNVSFinance.php"); // Redirect to TNVSFinance.php
+            exit();
         } else {
             echo '<script>alert("Invalid username or password!"); window.history.back();</script>';
         }
@@ -39,6 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

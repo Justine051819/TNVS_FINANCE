@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // Redirect to login page if not logged in
+    header("Location: login.php");
+    exit();
+}
+?>
+
+
+
 <html>
  <head>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -58,7 +71,7 @@
     <nav>
      <ul>
       <li class="mb-4">
-       <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.html">
+       <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.php">
         <i class="fas fa-th-large mr-2"></i>
         Dashboard
        </a>
@@ -72,10 +85,13 @@
         </a>
         <ul class="hidden pl-8 mt-2" id="employeeDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="javascript:void(0)" onclick="openModal()">Add Employee</a>
+          <a href="budget_.php" class="text-gray-700 font-bold">Budget Request</a>
          </li>
          <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">View Employees</a>
+          <a href="view_employee.php" class="text-gray-700 font-bold">Rejected Request</a>
+         </li>
+         <li class="mb-2">
+          <a href="view_employee.php" class="text-gray-700 font-bold">Budget Allocation</a>
          </li>
         </ul>
        </div>
@@ -88,11 +104,14 @@
          <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
         </a>
         <ul class="hidden pl-8 mt-2" id="payrollDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="approve_disbursement.php">Approved Disbursement</a>
+        <li class="mb-2">
+          <a href="view_employee.php" class="text-gray-700 font-bold">Request Payout</a>
          </li>
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Payroll Reports</a>
+          <a class="text-gray-700 font-bold" href="approve_disbursement.php">Payout</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="reject_disbursement.php">Rejected Disbursement</a>
          </li>
         </ul>
        </div>
@@ -143,6 +162,19 @@
          </li>
         </ul>
        </div>
+       <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('hatDropdown')">
+         <i class="fas fa-file-invoice-dollar mr-2"></i>
+         General Ledger
+         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
+         <ul class="hidden pl-8 mt-2" id="hatDropdown">
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="#">Cheese Cake</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="#">Palaman Hatdog</a>
+         </li>
+        </ul>
+        </a>
       </li>
       <li>
        <a class="text-blue-600 font-bold" href="#">Report</a>
@@ -167,7 +199,7 @@
       <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 hidden">
        <a class="block px-4 py-2 text-gray-700 font-bold" href="#">Profile</a>
        <a class="block px-4 py-2 text-gray-700 font-bold" href="#">Settings</a>
-       <a class="block px-4 py-2 text-gray-700 font-bold" href="login.php">Logout</a>
+       <a class="block px-4 py-2 text-gray-700 font-bold" href="logout.php">Logout</a>
       </div>
      </div>
     </header>
@@ -238,24 +270,6 @@
   </div>
 
   <!-- Modal for Adding Employee -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" id="addEmployeeModal">
-   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-    <h2 class="text-xl font-bold mb-4">Add Employee</h2>
-    <form>
-     <div class="mb-4">
-      <label class="block text-gray-700 font-bold mb-2" for="employeeName">Employee Name</label>
-      <input class="w-full p-2 border border-gray-300 rounded-md" id="employeeName" placeholder="Enter employee name" type="text"/>
-     </div>
-     <div class="mb-4">
-      <label class="block text-gray-700 font-bold mb-2" for="employeePosition">Position</label>
-      <input class="w-full p-2 border border-gray-300 rounded-md" id="employeePosition" placeholder="Enter employee position" type="text"/>
-     </div>
-     <div class="flex justify-end">
-      <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="closeModal()" type="button">Cancel</button>
-      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Add Employee</button>
-     </div>
-    </form>
-   </div>
   </div>
  </body>
 </html>

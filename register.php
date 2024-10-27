@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        $sql = "INSERT INTO regis (username, email, gname, initial, surname, address, age, contact, password) 
+        $sql = "INSERT INTO userss (username, email, gname, minitial, surname, address, age, contact, password) 
                 VALUES ('$username', '$email', '$givenname', '$initial', '$surname', '$address', '$age', '$contact', '$hashedPassword')";
 
         if ($conn->query($sql) === TRUE) {

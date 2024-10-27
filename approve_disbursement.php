@@ -39,7 +39,10 @@
      transition: transform 0.3s ease;
    }
 
-
+   .approveddisbursedtable{
+    width: 80%;
+    position: center; 
+}
   </style>
  </head>  
  <body class="bg-gray-900">
@@ -83,10 +86,10 @@
         </a>
         <ul class="hidden pl-8 mt-2" id="payrollDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Process Payroll</a>
+          <a class="text-gray-700 font-bold" href="approve_disbursement.php">Approved Disbursement</a>
          </li>
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Payroll Reports</a>
+          <a class="text-gray-700 font-bold" href="reject_disbursement.php">Rejected Disbursement</a>
          </li>
         </ul>
        </div>
@@ -191,21 +194,21 @@
         <h1 class="font-bold text-xl">Invoice</h1>
         <br>
         <div class="w-full px-4 pt-4">
-        <table class="table-auto w-auto">
+        <table id="approveddisbursedtable" class="min-w-full bg-white border border-gray-300">
             <thead>
-                <tr class="bg-blue-500 right-10px text-white">
+                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
                     <th class="px-4 py-2">Account Name</th>
                     <th class="px-4 py-2">Requested Department</th>
                     <th class="px-4 py-2">Expense Categories</th>
                     <th class="px-4 py-2">Amount</th> 
-                    <th class="m-auto">Description</th>
-                    <th>Document</th>
+                    <th class="px-4 py-2">Description</th>
+                    <th class="px-4 py-2">Document</th>
                     <th>Payment Due</th>
                     <th>Approved At</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="text-gray-600 text-sm font-light">
                 <?php
                  $servername = '127.0.0.1:3308';
                  $usernameDB = 'root';
@@ -221,27 +224,27 @@
                 $sql = "SELECT * FROM ad";
                 $result = $conn->query($sql);
 
-                if (!$result){
-                    die("invalid query: " . $connection->error);
+                if (!$result) {
+                    die("Invalid query: " . $connection->error);
                 }
-
+                
                 while($row = $result->fetch_assoc()){
                     echo "
-                    <tr class='align-middle'>
-                    <td>{$row['id']}</td>
-        <td>{$row['account_name']}</td>
-        <td>{$row['requested_department']}</td>
-        <td>{$row['expense_categories']}</td>
-         <td>" . number_format($row['amount'], 2) ."
-        <td>{$row['description']}</td>
-        <td>{$row['document']}</td>
-        <td>{$row['payment_due']}</td>
-        <td>{$row['approved_at']}</td>
-        </td>
-                </tr>
-                    ";
+                    <tr class='border-b border-gray-300 hover:bg-gray-100'>
+                        <td class='py-3 px-6 text-left'>{$row['id']}</td>
+                        <td class='py-3 px-6 text-left'>{$row['account_name']}</td>
+                        <td class='py-3 px-6 text-left'>{$row['requested_department']}</td>
+                        <td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>
+                        <td class='py-3 px-6 text-left'>" . number_format($row['amount'], 2) . "</td>
+                        <td class='py-3 px-6 text-left'>{$row['description']}</td>
+                        <td class='py-3 px-6 text-left'>{$row['document']}</td>
+                        <td class='py-3 px-6 text-left'>{$row['payment_due']}</td>
+                        <td class='py-3 px-6 text-left'>{$row['approved_at']}</td>
+                        
+                    </tr>";
                 }
                 ?>
+                
 
 
             </tbody>

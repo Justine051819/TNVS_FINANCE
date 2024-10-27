@@ -1,5 +1,6 @@
 <?php
 session_start(); // Start session at the top
+include 'session_manager.php'; // Include session manager
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $servername = "127.0.0.1:3308"; 
@@ -26,12 +27,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $result->fetch_assoc(); 
         
         if (password_verify($password, $user['password'])) {
-            // Set session variables upon successful login
-            $_SESSION['users_username'] = $username; 
-            $_SESSION['logged_in'] = true;
-            
-            header("Location: TNVSFinance.php"); // Redirect to TNVSFinance.php
-            exit();
+            // Check if the user is already logged in
+            if (is_user_logged_in($username)) {
+                echo '<script>alert("User is already logged in from another session!"); window.history.back();</script>';
+            } else {
+                // Set session variables upon successful login
+                $_SESSION['users_username'] = $username; 
+                $_SESSION['logged_in'] = true;
+                
+                // Mark this user as logged in
+                log_user_in($username, $conn);
+                
+
+                header("Location: TNVSFinance.php"); // Redirect to TNVSFinance.php
+                exit();
+            }
         } else {
             echo '<script>alert("Invalid username or password!"); window.history.back();</script>';
         }
@@ -45,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,8 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>FINANCE SYSTEM</title>
     <style>
         img{
-            height: 130px;
-            width: 400px;
+            height: 150px;
+            width: 420px;
         }
 
         body {
@@ -108,16 +119,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: #3498db;
             color: white;
             text-align: center;
-            border-radius: 5px;
+            border-radius: 10px;
             text-decoration: none; /* Removes the underline */
             cursor: pointer;
+            border: 1px solid black;
         }
         .button:hover {
             background-color: #2980b9;
         }
-        .register {
-            margin-top: 20px; 
-        }
+    
         .bsit {
             position: relative;
             top: 80px;
@@ -128,7 +138,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #3498db; /* Change this to your desired color */
+            color: #black; /* Change this to your desired color */
+        }
+
+        .register .button{
+            border-radius: 10px;
+            position: relative;
+            left: 70px;
+            bottom: 40px;
+            border-color: solid black;
+            text-decoration: none;
+            border: 1px solid black;
         }
     </style>
 </head>
@@ -150,7 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <button type="submit" class="button">Login</button>
     </form>
     <div class="register">
-        <a href="register.php">Create Account</a>
+        <a href="register.php" class="button">Create Account</a>
     </div>
     <div class="bsit">
         <label>&copy; BSIT</label>

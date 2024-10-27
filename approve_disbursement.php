@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // Redirect to login page if not logged in
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <html>
  <head>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,7 +66,7 @@
     <nav>
      <ul>
       <li class="mb-4">
-       <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.html">
+       <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.php">
         <i class="fas fa-th-large mr-2"></i>
         Dashboard
        </a>
@@ -173,7 +184,7 @@
      <nav class="text-gray-600 font-bold">
       <ol class="list-reset flex">
        <li>
-        <a class="text-gray-600 font-bold" href="TNVSFinance.html">Dashboard</a>
+        <a class="text-gray-600 font-bold" href="TNVSFinance.php">Dashboard</a>
        </li>
        <li>
         <span class="mx-2">&gt;</span>
@@ -186,7 +197,6 @@
     </div>
     <!-- Main content area -->
     <div class="flex-1 bg-blue-100 p-6 w-full">
-     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
 <div class="flex-1 bg-blue-100 p-6 w-full">
      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">

@@ -1,22 +1,13 @@
 <?php
-session_start(); // Start the session
-
-include 'session_manager.php'; // Include the session manager
+session_start();
 
 // Check if the user is logged in
-if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
-    header("Location: login.php"); // Redirect to login page if not logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // Redirect to login page if not logged in
+    header("Location: login.php");
     exit();
 }
-
-// Optionally, check for double login and alert if necessary
-if (is_user_logged_in($_SESSION['users_username'])) {
-    // Optionally, log them out or handle the session as needed
-}
-
-// Your page content here...
 ?>
-
 
 <html>
  <head>
@@ -68,10 +59,10 @@ if (is_user_logged_in($_SESSION['users_username'])) {
 
   </style>
  </head>  
- <body>
+ <body class="bg-gray-900">
   <div class="flex h-screen">
    <!-- Sidebar -->
-   <div id="sidebar" class="w-64 bg-white p-4 z-10">
+   <div id="sidebar" class="w-64 bg-white p-4 shadow-lg z-10">
     <div class="flex items-center mb-6">
      <img alt="Movers logo" class="mr-2" height="200px" src="logo.png" width="250px"/>
     </div>
@@ -92,7 +83,7 @@ if (is_user_logged_in($_SESSION['users_username'])) {
         </a>
         <ul class="hidden pl-8 mt-2" id="employeeDropdown">
          <li class="mb-2">
-          <a href="budget_request.php" class="text-gray-700 font-bold">Budget Request</a>
+          <a href="budget_.php" class="text-gray-700 font-bold">Budget Request</a>
          </li>
          <li class="mb-2">
           <a href="view_employee.php" class="text-gray-700 font-bold">Rejected Request</a>

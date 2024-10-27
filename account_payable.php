@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // Redirect to login page if not logged in
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,19 +52,23 @@
             transform: rotate(90deg);
             transition: transform 0.3s ease;
         }
+
+        .sidebar{
+          width: 100px;
+        }
     </style>
 </head>
-<body class="bg-gray-900">
+<body class="bg-white-900">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div id="sidebar" class="w-64 bg-white p-4 shadow-lg z-10 transition-all duration-300">
+        <div id="sidebar" class="w-64 bg-white p-4 z-10 transition-all duration-300">
             <div class="flex items-center mb-6">
                 <img alt="Movers logo" class="mr-2" height="200px" src="logo.png" width="250px"/>
             </div>
             <nav>
                 <ul>
                     <li class="mb-4">
-                        <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.html">
+                        <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.php">
                             <i class="fas fa-th-large mr-2"></i>
                             Dashboard
                         </a>
@@ -67,10 +82,7 @@
                             </a>
                             <ul class="hidden pl-8 mt-2" id="employeeDropdown">
                                 <li class="mb-2">
-                                    <a class="text-gray-700 font-bold" href="javascript:void(0)" onclick="openModal()">Add Employee</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="view_employee.php" class="text-gray-700 font-bold">View Employees</a>
+                                    <a href="budget_request.php" class="text-gray-700 font-bold">Budget Request</a>
                                 </li>
                             </ul>
                         </div>
@@ -172,7 +184,7 @@
                 <nav class="text-gray-600 font-bold">
                     <ol class="list-reset flex">
                         <li>
-                            <a class="text-gray-600 font-bold" href="TNVSFinance.html">Dashboard</a>
+                            <a class="text-gray-600 font-bold" href="TNVSFinance.php">Dashboard</a>
                         </li>
                         <li>
                             <span class="mx-2">&gt;</span>
@@ -185,8 +197,7 @@
             </div>
             <!-- Main content area -->
             <div class="flex-1 bg-blue-100 p-6 w-full">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="w-full">
+                    
                         <h1 class="font-bold text-xl">Invoice</h1>
                         <a class="bg-green-500 text-white px-2 py-1 rounded text-lg cursor-pointer whitespace-nowrap mb-4" href="add_ap.php" role="button">Create Sample</a>
                         <br>

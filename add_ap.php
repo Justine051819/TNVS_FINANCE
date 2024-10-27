@@ -14,6 +14,8 @@ $description = "";
 $document = "";
 $payment_due = "";
 $status = "";
+$bank_name = "";
+$bank_account_number = "";
 
 
 $errorMessage = "";
@@ -27,19 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST["description"];
     $document = $_POST["document"];
     $payment_due = $_POST["payment_due"];
+    $bank_name = $_POST["bank_name"];
+    $bank_account_number = $_POST["bank_account_number"];
 
     $amount = str_replace(',', '', $amount);
 
 }
 
 do {
-    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || empty($description) || empty($document)) {
+    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || empty($description) || empty($document) || empty($bank_name) || empty($bank_account_number)) {
         $errorMessage = "All the fields are required";
         break;
     }
 
-    $sql = "INSERT INTO ap (account_name, requested_department, expense_categories, amount, description, document, payment_due) " . 
-           "VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document', '$payment_due')";
+    $sql = "INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number) " . 
+           "VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document', '$payment_due', '$bank_name', '$bank_account_number')";
     $result = $conn->query($sql);
 
     if (!$result) {
@@ -54,10 +58,12 @@ $amount = "";
 $description = "";
 $document = "";
 $payment_due = "";
+$bank_account_number = "";
+$bank_name = "";
 
     $successMessage = "Account added correctly";
 
-    header("Location: /TNVS_FINANCE/account_payable.php");
+    header("Location: /TNVS_FINANCE/budget_request.php");
     exit;
 
 } while (false);
@@ -118,9 +124,18 @@ $payment_due = "";
                 <label class="block text-white font-bold mb-2 bg-blue-500 p-2 rounded" for="payment_due">Payment Due</label>
                 <input type="text" id="payment_due" name="payment_due" value="<?php echo $payment_due ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md">
             </div>
+            <div class="mb-3">
+                <label class="block text-white font-bold mb-2 bg-blue-500 p-2 rounded" for="bank_name">Bank Name</label>
+                <input type="text" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="mb-3">
+                <label class="block text-white font-bold mb-2 bg-blue-500 p-2 rounded" for="bank_account_number">Bank Account Number</label>
+                <input type="text" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            </div>
+
 
             <div class="flex justify-end">
-                <a href="/TNVS_FINANCE/account_payable.php" class="mr-2 px-4 py-2 bg-red-500 hover:bg-red-700 text-white rounded">Cancel</a>
+                <a href="/TNVS_FINANCE/budget_request.php" class="mr-2 px-4 py-2 bg-red-500 hover:bg-red-700 text-white rounded">Cancel</a>
                 <button type="submit" class="px-4 py-2 bg-green-500 hover:bg-green-700 text-white rounded">Submit</button>
             </div>
         </form>

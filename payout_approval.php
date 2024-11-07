@@ -43,8 +43,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
   }
 };
 
-  
-
   </script>
   <style>
    .rotate-90 {
@@ -99,7 +97,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </a>
         <ul class="hidden pl-8 mt-2" id="payrollDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="payout_approval.php">Payout Approval</a>
+          <a class="text-gray-700 font-bold" href="#">Payout Approval</a>
          </li>
          <li class="mb-2">
           <a class="text-gray-700 font-bold" href="payout.php">Payout</a>
@@ -226,8 +224,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 <div class="flex-1 bg-blue-100 p-6 w-full">
      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
      <div class="w-full">
-        <h1 class="font-bold text-xl">Budget Request</h1>
-        <a class="bg-green-500 text-white px-2 py-1 rounded text-lg cursor-pointer whitespace-nowrap mb-4" href="add_ap.php" role="button">Add Request</a>
+        <h1 class="font-bold text-xl">Payout Approval</h1>
         <br>
         <div class="w-full px-4 pt-4">
         <table class="min-w-full bg-white border border-gray-300">
@@ -245,21 +242,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                 </tr>
             </thead>
             <tbody class="text-gray-600 text-sm font-light">
-
-            <!-- Modal Structure -->
-<div id="verificationModal" style="display: none;">
-    <div>
-        <h2>Verification Required</h2>
-        <form id="verificationForm">
-            <label for="actionPassword">Enter Action Password:</label>
-            <input type="password" id="actionPassword" required>
-            <input type="hidden" id="actionType" name="actionType">
-            <button type="submit">Submit</button>
-            <button type="button" id="cancelButton">Cancel</button>
-        </form>
-    </div>
-</div>
-
             <?php
                                    $servername = '127.0.0.1:3308';
                                    $usernameDB = 'root';
@@ -280,13 +262,13 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                       if (isset($_POST['approve_id'])) {
                                           $approveId = $_POST['approve_id'];
                                           
-                                          // Insert into the table
-                                          $insert_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM br WHERE id = '$approveId'";
+                                          // Insert into the budget request table
+                                          $insert_sql = "INSERT INTO payout (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
+                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM pa WHERE id = '$approveId'";
                                           
                                           if ($conn->query($insert_sql) === TRUE) {
                                               // After successful insertion, delete the row
-                                              $delete_sql = "DELETE FROM br WHERE id = '$approveId'";
+                                              $delete_sql = "DELETE FROM pa WHERE id = '$approveId'";
                                               if ($conn->query($delete_sql) === TRUE) {
                                                   echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
                                               } else {
@@ -301,13 +283,13 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                       if (isset($_POST['reject_id'])) {
                                           $rejectId = $_POST['reject_id'];
                                           
-                                          // Insert into the table
-                                          $insert_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM br WHERE id = '$rejectId'";
+                                          // Insert into the rejected disbursement table
+                                          $insert_sql = "INSERT INTO payout (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
+                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM ap WHERE id = '$rejectId'";
                                           
                                           if ($conn->query($insert_sql) === TRUE) {
                                               // After successful insertion, delete the row from Accounts Payable
-                                              $delete_sql = "DELETE FROM br WHERE id = '$rejectId'";
+                                              $delete_sql = "DELETE FROM pa WHERE id = '$rejectId'";
                                               if ($conn->query($delete_sql) === TRUE) {
                                                   echo "<div class='bg-red-500 text-white p-4 rounded'>Disbursement Rejected!</div>";
                                               } else {
@@ -320,8 +302,8 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                   }
                                   
 
-                                    // Fetch disbursement records
-                                    $sql = "SELECT * FROM br";
+                                    // Fetch records
+                                    $sql = "SELECT * FROM pa";
                                     $result = $conn->query($sql);
                                     if ($result->num_rows > 0) {
                                         while ($row = $result->fetch_assoc()) {
@@ -338,16 +320,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                             echo "<td class='py-3 px-6 text-left'>
                                                     <form method='POST' action=''>
                                                         <input type='hidden' name='approve_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-blue-500 text-white px-2 py-1 mt-1 rounded'>Approve</button>
+                                                        <button type='submit' class='bg-blue-500 text-white px-2 py-1 mb-2 rounded'>Approve</button>
                                                     </form>
                                                      <form method='POST' action=''>
                                                         <input type='hidden' name='reject_id' value='{$row['id']}'>
                                                         <button type='submit' class='bg-red-500 text-white px-2 py-1 rounded'>Reject</button>
-                                                    </form>
-                                                     <a href='edit.php?id={$row['id']}' class='bg-yellow-500 text-white px-2 py-1 mb-3 rounded'>Edit</a>
-                                                   <form method='POST' action='del.php' onsubmit='return confirm(\"Are you sure you want to delete this record?\");'>
-                                                     <input type='hidden' name='id' value='{$row['id']}'>
-                                                    <button type='submit' class='bg-red-500 text-white px-2 py-1 mt-3 rounded'>Delete</button>
                                                     </form>
                                                   </td>";
                                             echo "</tr>";

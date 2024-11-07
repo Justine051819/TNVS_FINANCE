@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sample</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            font-family: 'poppins', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body{
+            background: blanchedalmond;
+        }
+
+        .inputbox{
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin: 300px auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .inputbox input{
+            width: 100%;
+            padding: 10px 0;
+            border: 0;
+            outline: 0;
+            font-size: 24px;
+            color: #555;
+        }
+
+        .inputbox img{
+            width: 35px;
+            cursor: pointer;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="inputbox">
+    <input type="password" placeholder="Enter Password" name="password" id="password" required>
+    <img src="close-eye2.jpg" id="eyeicon">
+    </div>
+
+    <script>
+
+        let eyeicon = document.getElementById("eyeicon");
+        let password = document.getElementById("password");
+
+        eyeicon.onclick = function(){
+            if(password.type == "password"){
+                password.type = "text";
+                eyeicon.src = "open-eye2.jpg";
+            }else{
+                password.type = "password";
+                eyeicon.src = "close-eye2.jpg";
+            }
+        }
+
+    </script>
+</body>
+</html>

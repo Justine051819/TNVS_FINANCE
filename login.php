@@ -49,6 +49,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo '<script>alert("Invalid username or password!"); window.history.back();</script>';
     }
 
+    echo "Username: $username<br>";
+    echo "Password: $password<br>";
+
+    if ($result->num_rows > 0) {
+    echo "User found.<br>";
+    } else {
+    echo "No user found.<br>";
+    }
+
+
+    $username = trim($_POST["username"]);
+    $password = trim($_POST["password"]);
+
+
     $stmt->close();
     $conn->close();
 }
@@ -97,7 +111,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 20px;
             text-align: center;
             position: relative; /* Added for positioning the icon */
+            display: flex;
+            align-items: center;
         }
+
+        .form-group img{
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+        }
+
         label {
             display: block;
             margin-bottom: 5px; 
@@ -108,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 12px 20px;
             border: 1px solid lightblue;
             box-sizing: border-box;
-            border-radius: 20px;
+            border-radius: 25px;
             margin: 8px 0;
             text-align: center;
         }
@@ -150,6 +173,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-decoration: none;
             border: 1px solid black;
         }
+
+
+        .password-container {
+    position: relative;
+    width: 100%;
+}
+
+
+
+.password-container img {
+    position: absolute;
+    right: 10px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25px; /* Adjust the size as needed */
+    height: 25px; /* Adjust the size as needed */
+    cursor: pointer;
+}
+
     </style>
 </head>
 <body>
@@ -159,14 +201,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </header>
     <form action="login.php" method="post">
         <div class="form-group">
-            <label for="username">Username</label>
+            <label for="username">Username: </label>
             <input type="text" id="username" placeholder="Enter Username" name="username" required>
         </div>
         <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter Password" name="password" required>
-            <span class="show-password" id="togglePassword"><i class="fas fa-eye"></i></span>
-        </div>
+    <label for="password">Password</label>
+    <div class="password-container">
+        <input type="password" id="password" placeholder="Enter Password" name="password" maxlength="10" required>
+        <img src="close-eye2.jpg" id="eyeicon">
+    </div>
+</div>
+
+
         <button type="submit" class="button">Login</button>
     </form>
     <div class="register">
@@ -180,11 +226,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
 
-        togglePassword.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
+
+
+        let eyeicon = document.getElementById("eyeicon");
+        let password = document.getElementById("password");
+
+        eyeicon.onclick = function(){
+            if(password.type == "password"){
+                password.type = "text";
+                eyeicon.src = "open-eye2.jpg";
+            }else{
+                password.type = "password";
+                eyeicon.src = "close-eye2.jpg";
+            }
+        }
+
+
+
     </script>
 </body>
 </html>

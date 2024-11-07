@@ -1,18 +1,40 @@
 <?php
-if (isset($_GET["id"])) {
-    $id = $_GET["id"];
+// Start the session
+session_start();
 
-    $servername = "127.0.0.1:3308"; 
-    $usernameDB = "root"; 
-    $passwordDB = ""; 
-    $dbname = "db"; 
+// Database connection
+$servername = '127.0.0.1:3308';
+$usernameDB = 'root';
+$passwordDB = '';
+$dbname = 'db';
 
-    $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
-
-    $sql = "DELETE FROM ve WHERE id=$id";
-    $conn->query($sql);
+$conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-header("location: /TNVS_FINANCE/view_employee.php");
-exit;
+// Check if ID is provided through POST
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
+    $id = $_POST['id'];
+
+    // Delete query
+    $sql = "DELETE FROM br WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+
+    if ($stmt->execute()) {
+        echo "<div class='bg-green-500 text-white p-4 rounded'>Record deleted successfully!</div>";
+        // Redirect to main page after successful deletion (update with your main page)
+        header("Location: budget_request.php");
+        exit();
+    } else {
+        echo "Error deleting record: " . $conn->error;
+    }
+
+    $stmt->close();
+} else {
+    echo "Invalid request.";
+}
+
+$conn->close();
 ?>

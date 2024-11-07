@@ -106,6 +106,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             color: #3498db; /* Change this to your desired color */
         }
+
+        .pass img{
+            width: 30px;
+            cursor: pointer;
+        }
+
+        .pass{
+            align-items: center;
+            display: flex;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Add Font Awesome -->
 </head>
@@ -141,14 +151,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="contact"><b>Contact Number</b></label>
             <input type="text" placeholder="Enter contact number" name="contact" value="<?php echo htmlspecialchars($contact); ?>" required>
 
+            <div class="pass">
             <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" id="password" required>
-            <span class="show-password" id="togglePassword1"><i class="fas fa-eye"></i></span>
+            <input type="password" placeholder="Enter Password" name="password" id="password" maxlength="10"required>
+            <img src="close-eye2.jpg" id="eyeicon">
+        </div>
+        <span class="show-password" id="togglePassword1"><i class="fas fa-eye"></i></span>
+        <button type="button" id="generatePassword" class="generate-btn">Generate Password</button>
 
+        <div class="pass">
             <label for="cpassword"><b>Confirm Password</b></label>
-            <input type="password" placeholder="Confirm Password" name="cpassword" id="cpassword" required>
+            <input type="password" placeholder="Confirm Password" name="cpassword" id="cpassword" maxlength="10" required>
             <span class="show-password" id="togglePassword2"><i class="fas fa-eye"></i></span>
-
+            <img src="close-eye2.jpg" id="cpass_eyeicon"> 
+            </div>
             <button type="submit" name="register">Register</button>
             <a href="login.php">
                 <button type="button" name="cancel">Cancel</button>
@@ -157,6 +173,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
+
+let eyeicon = document.getElementById("eyeicon");
+let cpassEyeicon = document.getElementById("cpass_eyeicon");
+let password = document.getElementById("password");
+let cpassword = document.getElementById("cpassword");
+
+// Toggle visibility for the password field
+eyeicon.onclick = function () {
+    if (password.type === "password") {
+        password.type = "text";
+        eyeicon.src = "open-eye2.jpg";
+    } else {
+        password.type = "password";
+        eyeicon.src = "close-eye2.jpg";
+    }
+};
+
+// Toggle visibility for the confirm password field
+cpassEyeicon.onclick = function () {
+    if (cpassword.type === "password") {
+        cpassword.type = "text";
+        cpassEyeicon.src = "open-eye2.jpg";
+    } else {
+        cpassword.type = "password";
+        cpassEyeicon.src = "close-eye2.jpg";
+    }
+};
+
+
         const togglePassword1 = document.getElementById('togglePassword1');
         const passwordInput = document.getElementById('password');
 
@@ -174,6 +219,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             confirmPasswordInput.setAttribute('type', type);
             this.querySelector('i').classList.toggle('fa-eye-slash');
         });
+
+        document.getElementById('generatePassword').addEventListener('click', function () {
+    // Generate a base random password
+    let generatedPassword = Math.random().toString(36).slice(-9); // 9 characters
+    // Add a random capital letter
+    const randomCapitalLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+    // Concatenate the capital letter and the generated password
+    generatedPassword = randomCapitalLetter + generatedPassword;
+
+    passwordInput.value = generatedPassword;
+    confirmPasswordInput.value = generatedPassword;
+
+    // Temporarily show the password
+    passwordInput.setAttribute('type', 'text');
+    confirmPasswordInput.setAttribute('type', 'text');
+
+    // Hide it again after 3 seconds
+    setTimeout(() => {
+        passwordInput.setAttribute('type', 'password');
+        confirmPasswordInput.setAttribute('type', 'password');
+    }, 1); // Adjust the duration if needed
+});
+
     </script>
 </body>
 </html>

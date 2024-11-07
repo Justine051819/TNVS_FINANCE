@@ -13,7 +13,29 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
  <head>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
   <script>
+
+  var url = 'uploads/your-file.pdf';
+  var pdfjsLib = window['pdfjs-dist'];
+
+  pdfjsLib.getDocument(url).promise.then(function(pdf) {
+    pdf.getPage(1).then(function(page) {
+      var scale = 1.5;
+      var viewport = page.getViewport({ scale: scale });
+
+      var canvas = document.getElementById('pdf-viewer');
+      var context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      page.render({
+        canvasContext: context,
+        viewport: viewport
+      });
+    });
+  });
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('hidden');
@@ -285,16 +307,25 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                                          SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM br WHERE id = '$approveId'";
                                           
                                           if ($conn->query($insert_sql) === TRUE) {
-                                              // After successful insertion, delete the row
-                                              $delete_sql = "DELETE FROM br WHERE id = '$approveId'";
-                                              if ($conn->query($delete_sql) === TRUE) {
-                                                  echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
-                                              } else {
-                                                  echo "Error deleting record: " . $conn->error;
-                                              }
-                                          } else {
-                                              echo "Error inserting record: " . $conn->error;
-                                          }
+                                            // After successful insertion, delete the row
+                                            $delete_sql = "DELETE FROM br WHERE id = '$approveId'";
+                                            if ($conn->query($delete_sql) === TRUE) {
+                                                echo "
+                                                    <div id='success-message' class='bg-green-500 text-white p-4 rounded'>
+                                                        Budget Approved!
+                                                    </div>
+                                                    <script>
+                                                        setTimeout(function() {
+                                                            document.getElementById('success-message').style.display = 'none';
+                                                        }, 3000); // 3000 milliseconds = 3 seconds
+                                                    </script>
+                                                ";
+                                            } else {
+                                                echo "Error deleting record: " . $conn->error;
+                                            }
+                                        } else {
+                                            echo "Error inserting record: " . $conn->error;
+                                        }
                                       }
                                   
                                       // Reject logic
@@ -336,20 +367,37 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                             echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
                                             
                                             echo "<td class='py-3 px-6 text-left'>
-                                                    <form method='POST' action=''>
-                                                        <input type='hidden' name='approve_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-blue-500 text-white px-2 py-1 mt-1 rounded'>Approve</button>
-                                                    </form>
-                                                     <form method='POST' action=''>
-                                                        <input type='hidden' name='reject_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-red-500 text-white px-2 py-1 rounded'>Reject</button>
-                                                    </form>
-                                                     <a href='edit.php?id={$row['id']}' class='bg-yellow-500 text-white px-2 py-1 mb-3 rounded'>Edit</a>
-                                                   <form method='POST' action='del.php' onsubmit='return confirm(\"Are you sure you want to delete this record?\");'>
-                                                     <input type='hidden' name='id' value='{$row['id']}'>
-                                                    <button type='submit' class='bg-red-500 text-white px-2 py-1 mt-3 rounded'>Delete</button>
-                                                    </form>
-                                                  </td>";
+                                            <div class='flex justify-start items-center space-x-1'>  <!-- Reduced space between buttons -->
+                                                <!-- Approve Button -->
+                                                <form method='POST' action=''>
+                                                    <input type='hidden' name='approve_id' value='{$row['id']}'>
+                                                    <button type='submit' class='text-blue-500 w-8 h-8 flex justify-center items-center'>  <!-- Smaller buttons -->
+                                                        <i class='fas fa-check'></i>
+                                                    </button>
+                                                </form>
+                                    
+                                                <!-- Reject Button -->
+                                                <form method='POST' action=''>
+                                                    <input type='hidden' name='reject_id' value='{$row['id']}'>
+                                                    <button type='submit' class='text-red-500 w-8 h-8 flex justify-center items-center'>  <!-- Smaller buttons -->
+                                                        <i class='fas fa-times'></i>
+                                                    </button>
+                                                </form>
+                                    
+                                                <!-- Edit Button -->
+                                                <a href='edit.php?id={$row['id']}' class='text-yellow-500 mb-3.5 w-8 h-8 flex justify-center items-center'>
+                                                    <i class='fas fa-edit'></i>
+                                                </a>
+                                    
+                                                <!-- Delete Button -->
+                                                <form method='POST' action='del.php' onsubmit='return confirm(\"Are you sure you want to delete this record?\");'>
+                                                    <input type='hidden' name='id' value='{$row['id']}'>
+                                                    <button type='submit' class='text-red-500 w-8 h-8 flex justify-center items-center'>
+                                                        <i class='fas fa-trash-alt'></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>";
                                             echo "</tr>";
                                         }
                                     } else {
@@ -362,6 +410,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 
             </tbody>
         </table>
+
+        <div class="mt-6">
+        <canvas id="pdf-viewer" width="600" height="400"></canvas>
+      </div>
+
               </div>
     </div>
      </div>

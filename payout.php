@@ -320,11 +320,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                             echo "<td class='py-3 px-6 text-left'>
                                                     <form method='POST' action=''>
                                                         <input type='hidden' name='approve_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-blue-500 text-white px-2 py-1 mb-2 rounded'>Approve</button>
-                                                    </form>
-                                                     <form method='POST' action=''>
-                                                        <input type='hidden' name='reject_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-red-500 text-white px-2 py-1 rounded'>Reject</button>
+                                                        <button type='submit' class='bg-green-500 text-white px-2 py-1 mb-2 rounded'>Disburse</button>
                                                     </form>
                                                   </td>";
                                             echo "</tr>";

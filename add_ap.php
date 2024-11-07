@@ -80,7 +80,7 @@ $bank_name = "";
 </head>
 <body class="bg-blue-300 h-screen flex items-center justify-center">
     <div class="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl">
-        <h2 class="text-center mb-4 font-bold text-lg">New Account</h2>
+        <h2 class="text-center mb-4 font-bold text-lg">Add Request</h2>
         
         <!-- Display Error or Success Message -->
         <?php if (!empty($errorMessage)) : ?>
@@ -95,27 +95,45 @@ $bank_name = "";
             </div>
         <?php endif; ?>
 
-        <form method="post" class="bg-white rounded-lg shadow-lg w-full">
+        <form method="post" class="bg-white rounded-lg w-full">
             <div class="grid grid-cols-2 gap-4">
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="account_name">Account Name</label>
-                    <input type="text" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="text" placeholder="Acccount Name" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="requested_department">Requested Department</label>
-                    <input type="text" id="requested_department" name="requested_department" value="<?php echo $requested_department ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="expense_categories">Expense Categories</label>
-                    <input type="text" id="expense_categories" name="expense_categories" value="<?php echo $expense_categories ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
-                </div>
+                <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="requested_department">Requested Department</label>
+    <select id="requested_department" name="requested_department" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+        <option value="None" <?php echo ($requested_department == 'department1') ? 'selected' : ''; ?>>Choose Option</option>
+        <option value="Admin" <?php echo ($requested_department == 'department2') ? 'selected' : ''; ?>>Admin</option>
+        <option value="Core" <?php echo ($requested_department == 'department3') ? 'selected' : ''; ?>>Core</option>
+        <option value="Finance" <?php echo ($requested_department == 'department4') ? 'selected' : ''; ?>>Finance</option>
+        <option value="Human Resource" <?php echo ($requested_department == 'department5') ? 'selected' : ''; ?>>Human Resource</option>
+        <option value="Logistic" <?php echo ($requested_department == 'department6') ? 'selected' : ''; ?>>Logistic</option>
+    </select>
+</div>
+
+<div class="mb-4">
+                <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="expense_categories">Expense Categories</label>
+    <select id="expense_categories" name="expense_categories" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+        <option value="None" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Choose Option</option>
+        <option value="Equipment/Assest" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Equipments/Assets</option>
+        <option value="Maintenance/Repair" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Maintenance/Repair</option>
+        <option value="Salaries" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Salaries</option>
+        <option value="Bonuses" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Bonuses</option>
+        <option value="Facility Cost" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Facility Cost</option>
+        <option value="Training Cost" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Training Cost</option>
+        <option value="Wellness Program Cost" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Wellness Program Cost</option>
+        <option value="Tax Payment" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Tax Payment</option>
+    </select>
+</div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="amount">Amount</label>
-                    <input type="text" id="amount" name="amount" value="<?php echo $amount ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="text" placeholder="Amount" id="amount" name="amount" value="<?php echo $amount ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="description">Description</label>
-                    <input type="text" id="description" name="description" value="<?php echo $description ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="text" placeholder="Description" id="description" name="description" value="<?php echo $description ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="document">Document</label>
@@ -127,11 +145,11 @@ $bank_name = "";
                 </div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_name">Bank Name</label>
-                    <input type="text" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="text" placeholder="ex. BDO/BPI/AUB" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
                 <div class="col-span-2 mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_account_number">Bank Account Number</label>
-                    <input type="text" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="text" placeholder="ex. 1234-5678-9101-2134" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
             </div>
 

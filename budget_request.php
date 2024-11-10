@@ -14,7 +14,28 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <script>
+
+$(document).on('click', '.reject-btn', function() {
+    var rejectId = $(this).data('id');  // Get the ID from the button's data-id attribute
+    $('#reject_id').val(rejectId);      // Set the reject_id input field with the ID
+    $('#rejectModal').show();           // Show the modal
+});
+
+// Close the modal when the close button is clicked
+$('.close').on('click', function() {
+    $('#rejectModal').hide();           // Hide the modal
+});
+
+// Optionally close the modal when clicked outside of the modal content
+$(window).on('click', function(event) {
+    if ($(event.target).is('#rejectModal')) {
+        $('#rejectModal').hide();
+    }
+});
+
 
   var url = 'uploads/your-file.pdf';
   var pdfjsLib = window['pdfjs-dist'];
@@ -47,24 +68,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
       dropdown.classList.toggle('hidden');
       icon.classList.toggle('rotate-90');
     }
-
-    function openModal() {
-      const modal = document.getElementById('addEmployeeModal');
-      modal.classList.remove('hidden');
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('addEmployeeModal');
-      modal.classList.add('hidden');
-    }
-
-    window.onclick = function(event) {
-  const modal = document.getElementById('addEmployeeModal');
-  if (event.target === modal) {
-    closeModal();
-  }
-};
-
   
 
   </script>
@@ -73,6 +76,32 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
      transform: rotate(90deg);
      transition: transform 0.3s ease;
    }
+
+   .modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5); /* Overlay effect */
+    z-index: 1050;
+    width: 100%;
+    max-width: 500px;
+}
+
+
+
+.modal-header {
+    font-size: 18px;
+}
+
+.close {
+
+    cursor: pointer;
+    font-size: 20px;
+    float:right;
+    margin-top:-12px;
+}
 
 
   </style>
@@ -104,7 +133,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
           <a href="budget_request.php" class="text-gray-700 font-bold">Budget Request</a>
          </li>
          <li class="mb-2">
-          <a href="budget_request.php" class="text-gray-700 font-bold">Rejected Request</a>
+          <a href="rejected_request.php" class="text-gray-700 font-bold">Rejected Request</a>
          </li>
          <li class="mb-2">
           <a href="budget_request.php" class="text-gray-700 font-bold">Budget Allocation</a>
@@ -248,7 +277,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 <div class="flex-1 bg-blue-100 p-6 w-full">
      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
      <div class="w-full">
-        <h1 class="font-bold text-xl">Budget Request</h1>
+        <h1 class="font-bold text-xl">BUDGET REQUEST</h1>
         <a class="bg-green-500 text-white px-2 py-1 rounded text-lg cursor-pointer whitespace-nowrap mb-4" href="add_ap.php" role="button">Add Request</a>
         <br>
         <div class="w-full px-4 pt-4">
@@ -262,7 +291,8 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                     <th class="px-4 py-2">Amount</th> 
                     <th class="px-4 py-2">Description</th>
                     <th class="px-4 py-2">Document</th>
-                    <th>Payment Due</th>
+                    <th class="px-4 py-2">Payment Due</th>
+                    <th>Download</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -282,129 +312,129 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     </div>
 </div>
 
-            <?php
-                                   $servername = '127.0.0.1:3308';
-                                   $usernameDB = 'root';
-                                   $passwordDB = '';
-                                   $dbname = 'db';
-                                   
-                                   $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
+<?php
+$servername = '127.0.0.1:3308';
+$usernameDB = 'root';
+$passwordDB = '';
+$dbname = 'db';
+
+$conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle approval action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id']) && isset($_POST['reason'])) {
+    $rejectId = intval($_POST['reject_id']);
+    $reason = $conn->real_escape_string($_POST['reason']); // Sanitize input
+
+    // Start transaction
+    $conn->begin_transaction();
+
+    try {
+        // Insert into rr table
+        $insert_sql = "INSERT INTO rr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, rejected_reason)
+                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, ?
+                       FROM br WHERE id = ?";
+        $stmt_insert = $conn->prepare($insert_sql);
+        $stmt_insert->bind_param("si", $reason, $rejectId);
+
+        if ($stmt_insert->execute()) {
+            // Now delete from br table
+            $delete_sql = "DELETE FROM br WHERE id = ?";
+            $stmt_delete = $conn->prepare($delete_sql);
+            $stmt_delete->bind_param("i", $rejectId);
+
+            if ($stmt_delete->execute()) {
+                // Commit transaction if both queries succeed
+                $conn->commit();
+                echo "
+                    <div id='success-message' class='bg-red-500 text-white p-4 rounded'>
+                        Budget Rejected!
+                    </div>
+                    <script>
+                        setTimeout(function() {
+                            document.getElementById('success-message').style.display = 'none';
+                        }, 2000);
+                    </script>
+                ";
+            } else {
+                // Rollback transaction if delete fails
+                throw new Exception("Error deleting record from br: " . $stmt_delete->error);
+            }
+        } else {
+            // Rollback transaction if insert fails
+            throw new Exception("Error inserting record into rr: " . $stmt_insert->error);
+        }
+    } catch (Exception $e) {
+        // Rollback transaction in case of error
+        $conn->rollback();
+        echo "<div class='bg-red-500 text-white p-4 rounded'>Transaction failed: " . $e->getMessage() . "</div>";
+    }
+}
+
+// Fetch disbursement records
+$sql = "SELECT * FROM br";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
+        echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
+        echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['description']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['document']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
+        // Document download link
+        if (!empty($row['document']) && file_exists("files/" . $row['document'])) {
+          echo "<td><a href='download.php?file=" . urlencode($row['document']) . "'>Download</a></td>";
+      } else {
+          echo "<td>No document available</td>";
+      }
+
+        
+        echo "<td class='py-3 px-6 text-left'>
+            <div class='flex justify-start items-center space-x-1'>  
+                <form method='POST' action=''>
+                    <input type='hidden' name='approve_id' value='{$row['id']}'>
+                    <button type='submit' class='text-blue-500 w-8 h-8 flex justify-center items-center'>  
+                        <i class='fas fa-check'></i>
+                    </button>
+                </form>
+                <form method='POST' action=''>
+                    <input type='hidden' name='reject_id' value='{$row['id']}'>
+                    <button type='button' class='reject-btn text-red-500 w-8 h-8 flex justify-center items-center' data-id='{$row['id']}'>
+                        <i class='fas fa-times'></i>
+                    </button>
+                </form>
+                <a href='edit.php?id={$row['id']}' class='text-yellow-500 mb-3.5 w-8 h-8 flex justify-center items-center'>
+                    <i class='fas fa-edit'></i>
+                </a>
+                <form method='POST' action='del.php' onsubmit='return confirm(\"Are you sure you want to delete this record?\");'>
+                    <input type='hidden' name='id' value='{$row['id']}'>
+                    <button type='submit' class='text-red-500 w-8 h-8 flex justify-center items-center'>
+                        <i class='fas fa-trash-alt'></i>
+                    </button>
+                </form>
+            </div>
+        </td>";
+
+        echo "</tr>";
+    }
+} else {
+    echo "<tr><td colspan='9' class='text-center py-3'>No records found</td></tr>";
+}
+$conn->close();
+?>
+
                                     
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
-
-                                    // Handle approval action
-                                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-                                      // Approve logic
-                                      if (isset($_POST['approve_id'])) {
-                                          $approveId = $_POST['approve_id'];
-                                          
-                                          // Insert into the table
-                                          $insert_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM br WHERE id = '$approveId'";
-                                          
-                                          if ($conn->query($insert_sql) === TRUE) {
-                                            // After successful insertion, delete the row
-                                            $delete_sql = "DELETE FROM br WHERE id = '$approveId'";
-                                            if ($conn->query($delete_sql) === TRUE) {
-                                                echo "
-                                                    <div id='success-message' class='bg-green-500 text-white p-4 rounded'>
-                                                        Budget Approved!
-                                                    </div>
-                                                    <script>
-                                                        setTimeout(function() {
-                                                            document.getElementById('success-message').style.display = 'none';
-                                                        }, 3000); // 3000 milliseconds = 3 seconds
-                                                    </script>
-                                                ";
-                                            } else {
-                                                echo "Error deleting record: " . $conn->error;
-                                            }
-                                        } else {
-                                            echo "Error inserting record: " . $conn->error;
-                                        }
-                                      }
                                   
-                                      // Reject logic
-                                      if (isset($_POST['reject_id'])) {
-                                          $rejectId = $_POST['reject_id'];
-                                          
-                                          // Insert into the table
-                                          $insert_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM br WHERE id = '$rejectId'";
-                                          
-                                          if ($conn->query($insert_sql) === TRUE) {
-                                              // After successful insertion, delete the row from Accounts Payable
-                                              $delete_sql = "DELETE FROM br WHERE id = '$rejectId'";
-                                              if ($conn->query($delete_sql) === TRUE) {
-                                                  echo "<div class='bg-red-500 text-white p-4 rounded'>Disbursement Rejected!</div>";
-                                              } else {
-                                                  echo "Error deleting record: " . $conn->error;
-                                              }
-                                          } else {
-                                              echo "Error inserting record: " . $conn->error;
-                                          }
-                                      }
-                                  }
-                                  
 
-                                    // Fetch disbursement records
-                                    $sql = "SELECT * FROM br";
-                                    $result = $conn->query($sql);
-                                    if ($result->num_rows > 0) {
-                                        while ($row = $result->fetch_assoc()) {
-                                            echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
-                                            echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['description']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['document']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
-                                            
-                                            echo "<td class='py-3 px-6 text-left'>
-                                            <div class='flex justify-start items-center space-x-1'>  <!-- Reduced space between buttons -->
-                                                <!-- Approve Button -->
-                                                <form method='POST' action=''>
-                                                    <input type='hidden' name='approve_id' value='{$row['id']}'>
-                                                    <button type='submit' class='text-blue-500 w-8 h-8 flex justify-center items-center'>  <!-- Smaller buttons -->
-                                                        <i class='fas fa-check'></i>
-                                                    </button>
-                                                </form>
                                     
-                                                <!-- Reject Button -->
-                                                <form method='POST' action=''>
-                                                    <input type='hidden' name='reject_id' value='{$row['id']}'>
-                                                    <button type='submit' class='text-red-500 w-8 h-8 flex justify-center items-center'>  <!-- Smaller buttons -->
-                                                        <i class='fas fa-times'></i>
-                                                    </button>
-                                                </form>
-                                    
-                                                <!-- Edit Button -->
-                                                <a href='edit.php?id={$row['id']}' class='text-yellow-500 mb-3.5 w-8 h-8 flex justify-center items-center'>
-                                                    <i class='fas fa-edit'></i>
-                                                </a>
-                                    
-                                                <!-- Delete Button -->
-                                                <form method='POST' action='del.php' onsubmit='return confirm(\"Are you sure you want to delete this record?\");'>
-                                                    <input type='hidden' name='id' value='{$row['id']}'>
-                                                    <button type='submit' class='text-red-500 w-8 h-8 flex justify-center items-center'>
-                                                        <i class='fas fa-trash-alt'></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>";
-                                            echo "</tr>";
-                                        }
-                                    } else {
-                                        echo "<tr><td colspan='5' class='text-center py-3'>No records found</td></tr>";
-                                    }
-                                    $conn->close();
-                                    ?>
                 
 
 
@@ -414,6 +444,51 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         <div class="mt-6">
         <canvas id="pdf-viewer" width="600" height="400"></canvas>
       </div>
+
+<!-- Modal for Reject Reason -->
+<div id="rejectModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content bg-gray-800 text-white p-4"> <!-- Added padding for better spacing -->
+            <div class="modal-header">
+                
+                <button type="button" class="close text-white" aria-label="Close" onclick="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="rejectForm" method="POST" action="budget_request.php">
+                    <!-- Hidden input to pass the reject_id -->-
+                    <input type="hidden" name="reject_id" id="reject_id">
+                    
+                    <div class="form-group">
+                        <!-- Textarea for entering reason for rejection -->
+                        <label for="reason" class="text-xs mt-1">REASON FOR REJECTION:</label>
+                        <textarea class="form-control bg-gray-700 text-white p-2 w-full mt-2" name="reason" id="reason" rows="4" required style="resize: none;"></textarea>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary bg-blue-600 hover:bg-blue-700 mt-3 w-full">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to toggle the modal -->
+<script>
+    // Function to open the modal and set the reject_id (you can trigger this with your Reject button)
+    function openModal(rejectId) {
+        document.getElementById("reject_id").value = rejectId; // Set the hidden reject_id value
+        document.getElementById("rejectModal").style.display = "block"; // Show the modal
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById("rejectModal").style.display = "none"; // Hide the modal
+    }
+</script>
+
+
 
               </div>
     </div>

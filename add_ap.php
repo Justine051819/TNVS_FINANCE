@@ -13,61 +13,98 @@ $amount = "";
 $description = "";
 $document = "";
 $payment_due = "";
-$status = "";
 $bank_name = "";
 $bank_account_number = "";
-
-
 $errorMessage = "";
 $successMessage = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Collect form data
     $account_name = $_POST["account_name"];
     $requested_department = $_POST["requested_department"];
     $expense_categories = $_POST["expense_categories"];
-    $amount = $_POST["amount"];
+    $amount = str_replace(',', '', $_POST["amount"]);
     $description = $_POST["description"];
     $document = $_POST["document"];
     $payment_due = $_POST["payment_due"];
     $bank_name = $_POST["bank_name"];
     $bank_account_number = $_POST["bank_account_number"];
 
-    $amount = str_replace(',', '', $amount);
+    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || 
+    empty($description) || empty($document) || empty($payment_due) || empty($bank_name) || empty($bank_account_number)) {
+    $errorMessage = "All fields are required!";
+} else {
 
+    // File upload logic...
+
+    // Insert other data into database
+    $query = "INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number) 
+              VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document', '$payment_due', '$bank_name', '$bank_account_number')";
+
+    if ($conn->query($query) === TRUE) {
+        $successMessage = "Data inserted successfully!";
+    } else {
+        $errorMessage = "Error inserting data: " . $conn->error;
+    }
 }
 
-do {
-    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || empty($description) || empty($document) || empty($bank_name) || empty($bank_account_number)) {
-        $errorMessage = "All the fields are required";
-        break;
+    if (isset($_FILES['document'])) {
+        if ($_FILES['document']['error'] === 0) {
+            echo "File uploaded successfully.";
+        } else {
+            echo "Error uploading file: " . $_FILES['document']['error'];
+        }
     }
+    
 
-    $sql = "INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number) " . 
-           "VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document', '$payment_due', '$bank_name', '$bank_account_number')";
-    $result = $conn->query($sql);
+    // Check if a file was uploaded
+    if (isset($_FILES['document']) && $_FILES['document']['error'] === 0) {
+        // File upload handling code here
+        $fileName = basename($_FILES['document']['name']); // Prevent directory traversal
+        $fileTmpName = $_FILES['document']['tmp_name'];
+        $fileDestination = "files/" . $fileName;
 
-    if (!$result) {
-        $errorMessage = "Invalid query: " . $conn->error;
-        break;
+        // Check if file size is greater than 0
+        if ($_FILES['document']['size'] > 0) {
+            $allowedFileTypes = ['pdf', 'doc', 'docx', 'jpg', 'png'];
+            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+            // Check if file extension is allowed
+            if (in_array($fileExtension, $allowedFileTypes)) {
+                // Check if file already exists in the database
+                $checkQuery = "SELECT * FROM filedownload WHERE filename = '$fileName'";
+                $checkResult = $conn->query($checkQuery);
+
+                if ($checkResult->num_rows === 0) {
+                    // Insert filename into the database
+                    $query = "INSERT INTO filedownload(filename) VALUES ('$fileName')";
+                    if ($conn->query($query)) {
+                        // Move uploaded file to destination folder
+                        if (move_uploaded_file($fileTmpName, $fileDestination)) {
+                            // File uploaded successfully
+                        } else {
+                            $errorMessage = "Error moving uploaded file.";
+                        }
+                    } else {
+                        $errorMessage = "Error inserting filename into database: " . $conn->error;
+                    }
+                } else {
+                    $errorMessage = "File already exists in the database.";
+                }
+            } else {
+                $errorMessage = "Invalid file type. Allowed types: " . implode(', ', $allowedFileTypes);
+            }
+        } else {
+            $errorMessage = "Uploaded file is empty.";
+        }
+    } elseif (isset($_FILES['document']) && $_FILES['document']['error'] !== 0) {
+        // Handle case when file upload fails or no file was selected
+        $errorMessage = "File upload error or no file selected. Error code: " . $_FILES['document']['error'];
     }
+}
 
-    $account_name = "";
-$requested_department = "";
-$expense_categories = "";
-$amount = "";
-$description = "";
-$document = "";
-$payment_due = "";
-$bank_account_number = "";
-$bank_name = "";
-
-    $successMessage = "Account added correctly";
-
-    header("Location: /TNVS_FINANCE/budget_request.php");
-    exit;
-
-} while (false);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -99,7 +136,7 @@ $bank_name = "";
             <div class="grid grid-cols-2 gap-4">
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="account_name">Account Name</label>
-                    <input type="text" placeholder="Acccount Name" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="text" placeholder="Acccount Name" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
                 </div>
                 <div class="mb-4">
                 <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="requested_department">Requested Department</label>
@@ -133,24 +170,35 @@ $bank_name = "";
                 </div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="description">Description</label>
-                    <input type="text" placeholder="Description" id="description" name="description" value="<?php echo $description ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="text" placeholder="Description" id="description" name="description" value="<?php echo $description ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
                 </div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="document">Document</label>
-                    <input type="file" id="document" name="document" accept=".pdf, .doc, .docx, .jpg, .png" value="<?php echo $document ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <input type="file" id="document" name="document" accept=".pdf, .doc, .docx, .jpg, .png" action="add_ap.php" method="POST" enctype="multipart/form-data" value="<?php echo $document ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="payment_due">Payment Due</label>
                     <input type="date" id="payment_due" name="payment_due" value="<?php echo $payment_due ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_name">Bank Name</label>
-                    <input type="text" placeholder="ex. BDO/BPI/AUB" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded text-transform:capitalize" for="bank_name">Bank Name</label>
+                    <input type="text" placeholder="ex. BDO/BPI/AUB" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
                 </div>
-                <div class="col-span-2 mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_account_number">Bank Account Number</label>
-                    <input type="text" placeholder="ex. 1234-5678-9101-2134" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
-                </div>
+                <script src="https://cdn.jsdelivr.net/npm/inputmask@5.0.7/dist/inputmask.min.js"></script>
+
+<div class="col-span-2 mb-4">
+    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_account_number">Bank Account Number</label>
+    <input type="text" placeholder="ex. 1234-5678-9101-2134" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+</div>
+
+<script>
+    var bankAccountInput = document.getElementById('bank_account_number');
+    var im = new Inputmask('9999-9999-9999-9999'); // Mask format: 1234-5678-9101-2134
+    im.mask(bankAccountInput);
+</script>
+
+
+
             </div>
 
             <div class="flex justify-end mt-4">
@@ -159,6 +207,7 @@ $bank_name = "";
             </div>
         </form>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

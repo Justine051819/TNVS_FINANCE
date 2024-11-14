@@ -231,8 +231,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
             <thead>
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">Reference ID</th>
                     <th class="px-4 py-2">Account Name</th>
                     <th class="px-4 py-2">Requested Department</th>
+                    <th class="px-4 py-2">Mode of Payment</th>
                     <th class="px-4 py-2">Expense Categories</th>
                     <th class="px-4 py-2">Amount</th> 
                     <th class="px-4 py-2">Description</th>
@@ -243,97 +245,136 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
             </thead>
             <tbody class="text-gray-600 text-sm font-light">
             <?php
-                                   $servername = '127.0.0.1:3308';
-                                   $usernameDB = 'root';
-                                   $passwordDB = '';
-                                   $dbname = 'db';
-                                   
-                                   $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
-                                    
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
+$servername = '127.0.0.1:3308';
+$usernameDB = 'root';
+$passwordDB = '';
+$dbname = 'db';
 
-                                    // Handle approval action
-                                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
 
-                                      // Approve logic
-                                      if (isset($_POST['approve_id'])) {
-                                          $approveId = $_POST['approve_id'];
-                                          
-                                          // Insert into the budget request table
-                                          $insert_sql = "INSERT INTO payout (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM pa WHERE id = '$approveId'";
-                                          
-                                          if ($conn->query($insert_sql) === TRUE) {
-                                              // After successful insertion, delete the row
-                                              $delete_sql = "DELETE FROM pa WHERE id = '$approveId'";
-                                              if ($conn->query($delete_sql) === TRUE) {
-                                                  echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
-                                              } else {
-                                                  echo "Error deleting record: " . $conn->error;
-                                              }
-                                          } else {
-                                              echo "Error inserting record: " . $conn->error;
-                                          }
-                                      }
-                                  
-                                      // Reject logic
-                                      if (isset($_POST['reject_id'])) {
-                                          $rejectId = $_POST['reject_id'];
-                                          
-                                          // Insert into the rejected disbursement table
-                                          $insert_sql = "INSERT INTO payout (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM ap WHERE id = '$rejectId'";
-                                          
-                                          if ($conn->query($insert_sql) === TRUE) {
-                                              // After successful insertion, delete the row from Accounts Payable
-                                              $delete_sql = "DELETE FROM pa WHERE id = '$rejectId'";
-                                              if ($conn->query($delete_sql) === TRUE) {
-                                                  echo "<div class='bg-red-500 text-white p-4 rounded'>Disbursement Rejected!</div>";
-                                              } else {
-                                                  echo "Error deleting record: " . $conn->error;
-                                              }
-                                          } else {
-                                              echo "Error inserting record: " . $conn->error;
-                                          }
-                                      }
-                                  }
-                                  
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
-                                    // Fetch records
-                                    $sql = "SELECT * FROM pa";
-                                    $result = $conn->query($sql);
-                                    if ($result->num_rows > 0) {
-                                        while ($row = $result->fetch_assoc()) {
-                                            echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
-                                            echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['description']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['document']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
-                                            
-                                            echo "<td class='py-3 px-6 text-left'>
-                                                    <form method='POST' action=''>
-                                                        <input type='hidden' name='approve_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-blue-500 text-white px-2 py-1 mb-2 rounded'>Approve</button>
-                                                    </form>
-                                                     <form method='POST' action=''>
-                                                        <input type='hidden' name='reject_id' value='{$row['id']}'>
-                                                        <button type='submit' class='bg-red-500 text-white px-2 py-1 rounded'>Reject</button>
-                                                    </form>
-                                                  </td>";
-                                            echo "</tr>";
-                                        }
-                                    } else {
-                                        echo "<tr><td colspan='5' class='text-center py-3'>No records found</td></tr>";
-                                    }
-                                    $conn->close();
-                                    ?>
+// Handle approval action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
+    $approveId = $_POST['approve_id'];
+
+    // Fetch mode_of_payment to decide where to insert
+    $mode_sql = "SELECT mode_of_payment FROM pa WHERE id = ?";
+    $stmt_mode = $conn->prepare($mode_sql);
+    $stmt_mode->bind_param("i", $approveId);
+    $stmt_mode->execute();
+    $stmt_mode->bind_result($mode_of_payment);
+    $stmt_mode->fetch();
+    $stmt_mode->close();
+
+    // Check if mode_of_payment was fetched successfully
+    if (empty($mode_of_payment)) {
+        echo "<div class='bg-red-500 text-white p-4 rounded'>Error: Mode of payment not found or invalid for ID $approveId.</div>";
+    } else {
+        // Begin transaction
+        $conn->begin_transaction();
+
+        // Determine which table to insert into based on mode_of_payment
+        if ($mode_of_payment == 'Bank Transfer') {
+            $insert_sql = "INSERT INTO payout (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
+                           FROM pa WHERE id = ?";
+        } elseif ($mode_of_payment == 'Ecash') {
+            $insert_sql = "INSERT INTO ecash (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
+                           FROM pa WHERE id = ?";
+        } elseif ($mode_of_payment == 'Cheque') {
+            $insert_sql = "INSERT INTO cheque (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
+                           FROM pa WHERE id = ?";
+        }elseif ($mode_of_payment == 'Cash') {
+            $insert_sql = "INSERT INTO cash (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
+                           FROM pa WHERE id = ?";
+        }else {
+            echo "<div class='bg-red-500 text-white p-4 rounded'>Invalid mode of payment: " . htmlspecialchars($mode_of_payment) . "</div>";
+            exit; // Stop execution if mode_of_payment is invalid
+        }
+
+        // Prepare the insert query
+        $stmt_insert = $conn->prepare($insert_sql);
+        $stmt_insert->bind_param("i", $approveId);
+
+        try {
+            if ($stmt_insert->execute()) {
+                // After successful insertion, delete from 'pa' table
+                $delete_sql = "DELETE FROM pa WHERE id = ?";
+                $stmt_delete = $conn->prepare($delete_sql);
+                $stmt_delete->bind_param("i", $approveId);
+
+                if ($stmt_delete->execute()) {
+                    // Commit transaction if both queries succeed
+                    $conn->commit();
+                    echo "
+                        <div id='success-message' class='bg-green-500 text-white p-4 rounded'>
+                            Budget Approved and moved to the appropriate table!
+                        </div>
+                        <script>
+                            setTimeout(function() {
+                                document.getElementById('success-message').style.display = 'none';
+                            }, 2000);
+                        </script>
+                    ";
+                } else {
+                    throw new Exception("Error deleting record from pa: " . $stmt_delete->error);
+                }
+            } else {
+                throw new Exception("Error inserting record into appropriate table: " . $stmt_insert->error);
+            }
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo "<div class='bg-red-500 text-white p-4 rounded'>Transaction failed: " . $e->getMessage() . "</div>";
+        }
+    }
+}
+
+// Fetch records
+$sql = "SELECT * FROM pa";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
+        echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['mode_of_payment']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
+        echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['description']}</td>";
+
+        // Document download link
+        if (!empty($row['document']) && file_exists("files/" . $row['document'])) {
+            echo "<td><a href='download.php?file=" . urlencode($row['document']) . "' style='color: blue; text-decoration: underline;'>Download</a></td>";
+        } else {
+            echo "<td>No document available</td>";
+        }
+
+        echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
+
+        echo "<td class='py-3 px-6 text-left'>
+                <form method='POST' action=''>
+                    <input type='hidden' name='approve_id' value='{$row['id']}'>
+                    <button type='submit' class='bg-blue-500 text-white px-2 py-1 mb-2 rounded'>Request Approval</button>
+                </form>
+              </td>";
+        echo "</tr>";
+    }
+} else {
+    echo "<tr><td colspan='5' class='text-center py-3'>No records found</td></tr>";
+}
+
+$conn->close();
+?>
+
                 
 
 

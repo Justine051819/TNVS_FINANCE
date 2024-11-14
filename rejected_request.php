@@ -246,6 +246,7 @@ function closeModal() {
             <thead>
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">Reference ID</th>
                     <th class="px-4 py-2">Account Name</th>
                     <th class="px-4 py-2">Requested Department</th>
                     <th class="px-4 py-2">Expense Categories</th>
@@ -280,7 +281,7 @@ function closeModal() {
                                           $approveId = $_POST['approve_id'];
                                           
                                           // Insert into the table
-                                          $insert_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
+                                          $insert_sql = "INSERT INTO br (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
                                                          SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM rr WHERE id = '$approveId'";
                                           
                                           if ($conn->query($insert_sql) === TRUE) {
@@ -289,7 +290,7 @@ function closeModal() {
                                             if ($conn->query($delete_sql) === TRUE) {
                                                 echo "
                                                     <div id='success-message' class='bg-green-500 text-white p-4 rounded'>
-                                                        Budget Approved!
+                                                        Resent Success!
                                                     </div>
                                                     <script>
                                                         setTimeout(function() {
@@ -340,12 +341,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id'])) {
                                         while ($row = $result->fetch_assoc()) {
                                             echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
+                                            echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
                                             echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['description']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['document']}</td>";
+                                            // Document download link
+                              if (!empty($row['document']) && file_exists("files/" . $row['document'])) {
+                             echo "<td><a href='download.php?file=" . urlencode($row['document']) . "' style='color: blue; text-decoration: underline;'>Download</a></td>";
+                              } else {
+                            echo "<td>No document available</td>";
+                                }
                                             echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
                                             echo "<td>
                                             <button onclick=\"showModal('{$row['rejected_reason']}')\" class='text-blue-500 underline'>View Reason</button>
@@ -359,7 +366,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id'])) {
                                                     <i class='fas fa-edit'></i>
                                                 </a>
 
-                                                  <!-- Approve Button -->
+                                                  <!-- Resent Button -->
                                                 <form method='POST' action=''>
                                                     <input type='hidden' name='approve_id' value='{$row['id']}'>
                                                     <button type='submit' class='text-blue-500 w-8 h-8 flex justify-center items-center'>  <!-- Smaller buttons -->

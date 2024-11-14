@@ -6,6 +6,16 @@ $dbname = "db";
 
 $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
 
+// Auto-generate Reference ID
+$currentYear = date("Y");
+
+// Generate a random number (e.g., between 1000 and 9999)
+$randomNumber = rand(1000, 9999);
+
+// Generate the reference ID with the format "BR-xxxx-current year"
+$reference_id = "BR-" . $randomNumber . "-" . $currentYear;
+
+
 $account_name = "";
 $requested_department = "";
 $expense_categories = "";
@@ -15,6 +25,7 @@ $document = "";
 $payment_due = "";
 $bank_name = "";
 $bank_account_number = "";
+$mode_of_payment = "";
 $errorMessage = "";
 $successMessage = "";
 
@@ -29,23 +40,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $payment_due = $_POST["payment_due"];
     $bank_name = $_POST["bank_name"];
     $bank_account_number = $_POST["bank_account_number"];
+    $mode_of_payment = $_POST["mode_of_payment"];  
+    $reference_id = $_POST["reference_id"];  
 
     if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || 
-    empty($description) || empty($document) || empty($payment_due) || empty($bank_name) || empty($bank_account_number)) {
+    empty($description) || empty($document) || empty($payment_due) || empty($mode_of_payment)) {
     $errorMessage = "All fields are required!";
 } else {
 
     // File upload logic...
 
     // Insert other data into database
-    $query = "INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number) 
-              VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document', '$payment_due', '$bank_name', '$bank_account_number')";
+    $query = "INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,  mode_of_payment, reference_id)
+              VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document', '$payment_due', '$bank_name', '$bank_account_number', '$mode_of_payment', '$reference_id')";
 
-    if ($conn->query($query) === TRUE) {
-        $successMessage = "Data inserted successfully!";
-    } else {
-        $errorMessage = "Error inserting data: " . $conn->error;
-    }
+if ($conn->query($query) === TRUE) {
+    $successMessage = "Data inserted successfully!";
+    // Redirect to the budget_request page after successful insertion
+    header("Location: budget_request.php");
+    exit(); // Ensure the script stops executing after redirection
+} else {
+    $errorMessage = "Error inserting data: " . $conn->error;
+}
 }
 
     if (isset($_FILES['document'])) {
@@ -134,6 +150,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <form method="post" class="bg-white rounded-lg w-full">
             <div class="grid grid-cols-2 gap-4">
+
+            <div class="mb-4">
+    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="reference_id">Reference ID</label>
+    <input type="text" placeholder="Reference ID" id="reference_id" name="reference_id" value="<?php echo isset($reference_id) ? $reference_id : ''; ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md bg-gray-100" readonly>
+</div>
+
+
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="account_name">Account Name</label>
                     <input type="text" placeholder="Acccount Name" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
@@ -151,18 +174,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 <div class="mb-4">
-                <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="expense_categories">Expense Categories</label>
-    <select id="expense_categories" name="expense_categories" class="w-full px-2 py-1 border border-gray-300 rounded-md">
-        <option value="None" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Choose Option</option>
-        <option value="Equipment/Assest" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Equipments/Assets</option>
-        <option value="Maintenance/Repair" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Maintenance/Repair</option>
-        <option value="Salaries" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Salaries</option>
-        <option value="Bonuses" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Bonuses</option>
-        <option value="Facility Cost" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Facility Cost</option>
-        <option value="Training Cost" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Training Cost</option>
-        <option value="Wellness Program Cost" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Wellness Program Cost</option>
-        <option value="Tax Payment" <?php echo ($expense_categories == 'expense') ? 'selected' : ''; ?>>Tax Payment</option>
+                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="payment_due">Payment Due</label>
+                    <input type="date" id="payment_due" name="payment_due" value="<?php echo $payment_due ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                </div>
+
+
+                <div class="mb-4">
+    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="expense_categories">Expense Categories</label>
+    <select id="expense_categories" name="expense_categories" class="w-full px-2 py-1 border border-gray-300 rounded-md" onchange="toggleExtraInput()">
+        <option value="None" <?php echo ($expense_categories == 'None') ? 'selected' : ''; ?>>Choose Option</option>
+        <option value="Equipment/Assets" <?php echo ($expense_categories == 'Equipment/Assets') ? 'selected' : ''; ?>>Equipments/Assets</option>
+        <option value="Maintenance/Repair" <?php echo ($expense_categories == 'Maintenance/Repair') ? 'selected' : ''; ?>>Maintenance/Repair</option>
+        <option value="Salaries" <?php echo ($expense_categories == 'Salaries') ? 'selected' : ''; ?>>Salaries</option>
+        <option value="Bonuses" <?php echo ($expense_categories == 'Bonuses') ? 'selected' : ''; ?>>Bonuses</option>
+        <option value="Facility Cost" <?php echo ($expense_categories == 'Facility Cost') ? 'selected' : ''; ?>>Facility Cost</option>
+        <option value="Training Cost" <?php echo ($expense_categories == 'Training Cost') ? 'selected' : ''; ?>>Training Cost</option>
+        <option value="Wellness Program Cost" <?php echo ($expense_categories == 'Wellness Program Cost') ? 'selected' : ''; ?>>Wellness Program Cost</option>
+        <option value="Tax Payment" <?php echo ($expense_categories == 'Tax Payment') ? 'selected' : ''; ?>>Tax Payment</option>
+        <option value="Extra" <?php echo ($expense_categories == 'Extra') ? 'selected' : ''; ?>>Extra</option>
     </select>
+    
+    <!-- Extra Input field -->
+    <div id="extra_input_container" class="mt-2" style="display: none;">
+        <label class="block text-white font-bold mb-1" for="extra_category">Please specify:</label>
+        <input type="text" id="extra_category" name="extra_category" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+    </div>
 </div>
                 <div class="mb-4">
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="amount">Amount</label>
@@ -176,26 +212,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="document">Document</label>
                     <input type="file" id="document" name="document" accept=".pdf, .doc, .docx, .jpg, .png" action="add_ap.php" method="POST" enctype="multipart/form-data" value="<?php echo $document ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
+
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="payment_due">Payment Due</label>
-                    <input type="date" id="payment_due" name="payment_due" value="<?php echo $payment_due ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="mode_of_payment">Mode of Payment</label>
+                    <select id="mode_of_payment" name="mode_of_payment" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                        <option value="">Select Mode</option>
+                        <option value="Bank Transfer" <?php echo ($mode_of_payment == 'Bank Transfer') ? 'selected' : ''; ?>>Bank Transfer</option>
+                        <option value="Ecash" <?php echo ($mode_of_payment == 'Ecash') ? 'selected' : ''; ?>>Ecash</option>
+                        <option value="Cash" <?php echo ($mode_of_payment == 'Cash') ? 'selected' : ''; ?>>Cash</option>
+                        <option value="Cheque" <?php echo ($mode_of_payment == 'Cheque') ? 'selected' : ''; ?>>Cheque</option>
+                    </select>
                 </div>
+
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded text-transform:capitalize" for="bank_name">Bank Name</label>
-                    <input type="text" placeholder="ex. BDO/BPI/AUB" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
+                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded text-transform:capitalize" for="bank_name">Bank/Account Name</label>
+                    <input type="text" placeholder="ex. BDO/Gcash (Optional)" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/inputmask@5.0.7/dist/inputmask.min.js"></script>
 
 <div class="col-span-2 mb-4">
-    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_account_number">Bank Account Number</label>
-    <input type="text" placeholder="ex. 1234-5678-9101-2134" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_account_number">Account Number</label>
+    <input type="text" placeholder="ex. 1234-5678-9101-2134 (Optional)" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
 </div>
 
 <script>
     var bankAccountInput = document.getElementById('bank_account_number');
-    var im = new Inputmask('9999-9999-9999-9999'); // Mask format: 1234-5678-9101-2134
+    var im = new Inputmask('9999-9999-9999-9999-9', {
+        placeholder: ''  // Removes the underscore placeholders
+    });
     im.mask(bankAccountInput);
 </script>
+
 
 
 
@@ -227,6 +274,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             value = parseInt(value).toLocaleString();  // Convert to number with commas
             e.target.value = value;
         });
+
+        
     </script>
 </body>
 </html>

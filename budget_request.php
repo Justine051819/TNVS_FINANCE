@@ -153,7 +153,16 @@ $(window).on('click', function(event) {
           <a class="text-gray-700 font-bold" href="payout_approval.php">Payout Approval</a>
          </li>
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="payout.php">Payout</a>
+          <a class="text-gray-700 font-bold" href="payout.php">Bank Transfer Payout</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="ecash.php">Ecash Payout</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="cheque.php">Cheque Payout</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="cash.php">Cash Payout</a>
          </li>
         </ul>
        </div>
@@ -184,7 +193,7 @@ $(window).on('click', function(event) {
         </a>
         <ul class="hidden pl-8 mt-2" id="recommendationDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="account_payable.php">Account Payable Invoice</a>
+          <a class="text-gray-700 font-bold" href="payables.php">Payables</a>
         </ul>
        </div>
       </li>
@@ -285,14 +294,15 @@ $(window).on('click', function(event) {
             <thead>
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">Reference ID</th>
                     <th class="px-4 py-2">Account Name</th>
                     <th class="px-4 py-2">Requested Department</th>
+                    <th class="px-4 py-2">Mode of Payment</th>
                     <th class="px-4 py-2">Expense Categories</th>
                     <th class="px-4 py-2">Amount</th> 
                     <th class="px-4 py-2">Description</th>
                     <th class="px-4 py-2">Document</th>
-                    <th class="px-4 py-2">Payment Due</th>
-                    <th>Download</th>
+                    <th>Payment Due</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -326,12 +336,55 @@ if ($conn->connect_error) {
 }
 
 // Handle approval action
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id']) && isset($_POST['reason'])) {
-    $rejectId = intval($_POST['reject_id']);
-    $reason = $conn->real_escape_string($_POST['reason']); // Sanitize input
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
+    $approveId = intval($_POST['approve_id']);
 
     // Start transaction
     $conn->begin_transaction();
+
+    try {
+        // Insert into pa table
+        $insert_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
+                       FROM br WHERE id = ?";
+        $stmt_insert = $conn->prepare($insert_sql);
+        $stmt_insert->bind_param("i", $approveId);
+
+        if ($stmt_insert->execute()) {
+            // Now delete from br table
+            $delete_sql = "DELETE FROM br WHERE id = ?";
+            $stmt_delete = $conn->prepare($delete_sql);
+            $stmt_delete->bind_param("i", $approveId);
+
+            if ($stmt_delete->execute()) {
+                // Commit transaction if both queries succeed
+                $conn->commit();
+                echo "
+                    <div id='success-message' class='bg-green-500 text-white p-4 rounded'>
+                        Budget Approved and moved to Payout!
+                    </div>
+                    <script>
+                        setTimeout(function() {
+                            document.getElementById('success-message').style.display = 'none';
+                        }, 2000);
+                    </script>
+                ";
+            } else {
+                throw new Exception("Error deleting record from br: " . $stmt_delete->error);
+            }
+        } else {
+            throw new Exception("Error inserting record into pa: " . $stmt_insert->error);
+        }
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo "<div class='bg-red-500 text-white p-4 rounded'>Transaction failed: " . $e->getMessage() . "</div>";
+    }
+}
+
+// Handle rejection action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id']) && isset($_POST['reason'])) {
+    $rejectId = intval($_POST['reject_id']);
+    $reason = $conn->real_escape_string($_POST['reason']);
 
     try {
         // Insert into rr table
@@ -352,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id']) && isset
                 $conn->commit();
                 echo "
                     <div id='success-message' class='bg-red-500 text-white p-4 rounded'>
-                        Budget Rejected!
+                        Budget Rejected and moved to Rejected Requests!
                     </div>
                     <script>
                         setTimeout(function() {
@@ -361,17 +414,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id']) && isset
                     </script>
                 ";
             } else {
-                // Rollback transaction if delete fails
                 throw new Exception("Error deleting record from br: " . $stmt_delete->error);
             }
         } else {
-            // Rollback transaction if insert fails
             throw new Exception("Error inserting record into rr: " . $stmt_insert->error);
         }
     } catch (Exception $e) {
-        // Rollback transaction in case of error
         $conn->rollback();
         echo "<div class='bg-red-500 text-white p-4 rounded'>Transaction failed: " . $e->getMessage() . "</div>";
+    }
+}
+
+// Handle delete action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
+    $deleteId = intval($_POST['delete_id']);
+
+    $delete_sql = "DELETE FROM br WHERE id = ?";
+    $stmt_delete = $conn->prepare($delete_sql);
+    $stmt_delete->bind_param("i", $deleteId);
+
+    if ($stmt_delete->execute()) {
+        echo "<div id='success-message' class='bg-green-500 text-white p-4 rounded'>
+                Record deleted successfully!
+              </div>
+              <script>
+                  setTimeout(function() {
+                      document.getElementById('success-message').style.display = 'none';
+                  }, 2000);
+              </script>";
+    } else {
+        echo "<div class='bg-red-500 text-white p-4 rounded'>Error deleting record: " . $stmt_delete->error . "</div>";
     }
 }
 
@@ -382,36 +454,41 @@ if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
         echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
         echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
         echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['mode_of_payment']}</td>";
         echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
         echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
         echo "<td class='py-3 px-6 text-left'>{$row['description']}</td>";
-        echo "<td class='py-3 px-6 text-left'>{$row['document']}</td>";
-        echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
+
         // Document download link
         if (!empty($row['document']) && file_exists("files/" . $row['document'])) {
-          echo "<td><a href='download.php?file=" . urlencode($row['document']) . "'>Download</a></td>";
-      } else {
-          echo "<td>No document available</td>";
-      }
+            echo "<td><a href='download.php?file=" . urlencode($row['document']) . "' style='color: blue; text-decoration: underline;'>Download</a></td>";
+        } else {
+            echo "<td>No document available</td>";
+        }
 
-        
+        echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
+
+        // Action buttons
         echo "<td class='py-3 px-6 text-left'>
-            <div class='flex justify-start items-center space-x-1'>  
+            <div class='flex justify-start items-center space-x-1'>
                 <form method='POST' action=''>
                     <input type='hidden' name='approve_id' value='{$row['id']}'>
-                    <button type='submit' class='text-blue-500 w-8 h-8 flex justify-center items-center'>  
+                    <button type='submit' class='text-blue-500 w-8 h-8 flex justify-center items-center'>
                         <i class='fas fa-check'></i>
                     </button>
                 </form>
                 <form method='POST' action=''>
                     <input type='hidden' name='reject_id' value='{$row['id']}'>
+                    <input type='hidden' name='reason' id='reason-{$row['id']}'>
                     <button type='button' class='reject-btn text-red-500 w-8 h-8 flex justify-center items-center' data-id='{$row['id']}'>
                         <i class='fas fa-times'></i>
                     </button>
                 </form>
-                <a href='edit.php?id={$row['id']}' class='text-yellow-500 mb-3.5 w-8 h-8 flex justify-center items-center'>
+
+                <a href='edit.php?id={$row['id']}' class='text-yellow-500 w-8 h-8 flex justify-center items-center mb-3'>
                     <i class='fas fa-edit'></i>
                 </a>
                 <form method='POST' action='del.php' onsubmit='return confirm(\"Are you sure you want to delete this record?\");'>
@@ -422,14 +499,19 @@ if ($result->num_rows > 0) {
                 </form>
             </div>
         </td>";
-
         echo "</tr>";
     }
 } else {
-    echo "<tr><td colspan='9' class='text-center py-3'>No records found</td></tr>";
+    echo "<tr><td colspan='9' class='text-center'>No records found</td></tr>";
 }
 $conn->close();
 ?>
+
+
+</script>
+
+
+
 
                                     
                                   

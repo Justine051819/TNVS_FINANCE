@@ -38,17 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $expense_categories = $_POST['expense_categories'];
     $amount = $_POST['amount'];
     $description = $_POST['description'];
-    $document = $_POST['document'];
     $payment_due = $_POST['payment_due'];
 
     // Validate all fields
-    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || empty($description) || empty($document) || empty($payment_due)) {
+    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || empty($description) || empty($payment_due)) {
         $error = "All fields are required.";
     } else {
         // Update query
-        $update_sql = "UPDATE br SET account_name = ?, requested_department = ?, expense_categories = ?, amount = ?, description = ?, document = ?, payment_due = ? WHERE id = ?";
+        $update_sql = "UPDATE br SET account_name = ?, requested_department = ?, expense_categories = ?, amount = ?, description = ?, payment_due = ? WHERE id = ?";
         $update_stmt = $conn->prepare($update_sql);
-        $update_stmt->bind_param("sssssssi", $account_name, $requested_department, $expense_categories, $amount, $description, $document, $payment_due, $id);
+        $update_stmt->bind_param("ssssssi", $account_name, $requested_department, $expense_categories, $amount, $description, $payment_due, $id);
 
         if ($update_stmt->execute()) {
             // Display success message and redirect to main page
@@ -106,10 +105,6 @@ $conn->close();
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2" for="description">Description:</label>
                 <textarea id="description" name="description" class="w-full px-3 py-2 border rounded"><?= htmlspecialchars($row['description']) ?></textarea>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2" for="document">Document:</label>
-                <input type="text" id="document" name="document" value="<?= htmlspecialchars($row['document']) ?>" class="w-full px-3 py-2 border rounded">
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2" for="payment_due">Payment Due:</label>

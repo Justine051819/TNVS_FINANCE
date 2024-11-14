@@ -100,7 +100,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
           <a class="text-gray-700 font-bold" href="#">Payout Approval</a>
          </li>
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Payout</a>
+          <a class="text-gray-700 font-bold" href="payout.php">Payout</a>
          </li>
         </ul>
        </div>
@@ -131,7 +131,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </a>
         <ul class="hidden pl-8 mt-2" id="recommendationDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="account_payable.php">Account Payable Invoice</a>
+          <a class="text-gray-700 font-bold" href="payables.php">Payables</a>
+        </li>
+        <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="#"></a>
+         </li>
         </ul>
        </div>
       </li>
@@ -218,65 +222,108 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
       </ol>
      </nav>
     </div>
-    <!-- Main content area -->
-    <div class="flex-1 bg-blue-100 p-6 w-full">
 
+<!-- Main content area -->
 <div class="flex-1 bg-blue-100 p-6 w-full">
      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
      <div class="w-full">
-        <h1 class="font-bold text-xl">Disburse Records</h1>
- <br>
+        <h1 class="font-bold text-xl">Gcash</h1>
+        <br>
         <div class="w-full px-4 pt-4">
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
-                    <th class="px-4 py-2">Reference ID</th> 
+                    <th class="px-4 py-2">Reference ID</th>
                     <th class="px-4 py-2">Account Name</th>
                     <th class="px-4 py-2">Requested Department</th>
-                    <th class="px-4 py-2">Mode of Payment</th> 
+                    <th class="px-4 py-2">Mode of Payment</th>
                     <th class="px-4 py-2">Expense Categories</th>
                     <th class="px-4 py-2">Amount</th> 
+                    <th class="px-4 py-2">Ecash Name</th>
+                    <th class="px-4 py-2">Ecash Number</th>
                     <th>Payment Due</th>
-                    <th>Disbursed At</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody class="text-gray-600 text-sm font-light">
             <?php
-                                   $servername = '127.0.0.1:3308';
-                                   $usernameDB = 'root';
-                                   $passwordDB = '';
-                                   $dbname = 'db';
-                                   
-                                   $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
-                                    
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
+$servername = '127.0.0.1:3308';
+$usernameDB = 'root';
+$passwordDB = '';
+$dbname = 'db';
 
-                                
-                                    // Fetch records
-                                    $sql = "SELECT * FROM dr";
-                                    $result = $conn->query($sql);
-                                    if ($result->num_rows > 0) {
-                                        while ($row = $result->fetch_assoc()) {
-                                            echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['mode_of_payment']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
-                                            echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['disbursed_at']}</td>";
-                                        }
-                                    } else {
-                                        echo "<tr><td colspan='5' class='text-center py-3'>No records found</td></tr>";
-                                    }
-                                    $conn->close();
-                                    ?>
+$conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle approval action
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Approve logic
+    if (isset($_POST['approve_id'])) {
+        $approveId = $_POST['approve_id'];
+
+        // Insert into the approved disbursements table
+        $insert_sql = "INSERT INTO dr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id)
+                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id
+                       FROM ecash WHERE id = '$approveId'";
+
+        if ($conn->query($insert_sql) === TRUE) {
+            // After successful insertion, delete the row from br
+            $delete_sql = "DELETE FROM ecash WHERE id = '$approveId'";
+            if ($conn->query($delete_sql) === TRUE) {
+                echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
+            } else {
+                echo "Error deleting record: " . $conn->error;
+            }
+        } else {
+            echo "Error inserting record: " . $conn->error;
+        }
+    }
+
+}
+
+
+// Fetch records from payables table
+$sql = "SELECT * FROM ecash";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
+        echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['mode_of_payment']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
+        echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['bank_name']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['bank_account_number']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
+
+        echo "<td class='py-3 px-6 text-left'>
+                <form method='POST' action=''>
+                    <input type='hidden' name='approve_id' value='{$row['id']}'>
+                    <button type='submit' class='bg-green-500 text-white px-2 py-1 mb-2 rounded'>Disburse</button>
+                </form>
+
+                
+              </td>";
+        echo "</tr>";
+    }
+} else {
+    echo "<tr><td colspan='5' class='text-center py-3'>No records found</td></tr>";
+}
+
+$conn->close();
+?>
+
+
+
+
                 
 
 
@@ -284,7 +331,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </table>
               </div>
     </div>
+ 
      </div>
+
+    </div>
     </div>
    </div>
   </div>

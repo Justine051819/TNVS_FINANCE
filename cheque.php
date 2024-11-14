@@ -53,10 +53,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 
   </style>
  </head>  
- <body class="bg-gray-900">
+ <body class="bg-white-900">
   <div class="flex h-screen">
    <!-- Sidebar -->
-   <div id="sidebar" class="w-64 bg-white p-4 shadow-lg z-10 transition-all duration-300">
+   <div id="sidebar" class="w-64 bg-white p-4  z-10 transition-all duration-300">
     <div class="flex items-center mb-6">
      <img alt="Movers logo" class="mr-2" height="200px" src="logo.png" width="250px"/>
     </div>
@@ -77,10 +77,13 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </a>
         <ul class="hidden pl-8 mt-2" id="employeeDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="javascript:void(0)" onclick="openModal()">Add Employee</a>
+          <a href="budget_request.php" class="text-gray-700 font-bold">Budget Request</a>
          </li>
          <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">View Employees</a>
+          <a href="budget_request.php" class="text-gray-700 font-bold">Rejected Request</a>
+         </li>
+         <li class="mb-2">
+          <a href="budget_request.php" class="text-gray-700 font-bold">Budget Allocation</a>
          </li>
         </ul>
        </div>
@@ -94,10 +97,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </a>
         <ul class="hidden pl-8 mt-2" id="payrollDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Process Payroll</a>
+          <a class="text-gray-700 font-bold" href="#">Payout Approval</a>
          </li>
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Payroll Reports</a>
+          <a class="text-gray-700 font-bold" href="payout.php">Payout</a>
          </li>
         </ul>
        </div>
@@ -128,7 +131,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </a>
         <ul class="hidden pl-8 mt-2" id="recommendationDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="account_payable.php">Account Payable Invoice</a>
+          <a class="text-gray-700 font-bold" href="payables.php">Payables</a>
+        </li>
+        <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="#"></a>
+         </li>
         </ul>
        </div>
       </li>
@@ -145,6 +152,29 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
          </li>
          <li class="mb-2">
           <a class="text-gray-700 font-bold" href="#">Palaman Hatdog</a>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li class="mb-4">
+       <div>
+        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('hatDropdown')">
+         <i class="fas fa-file-invoice-dollar mr-2"></i>
+         General Ledger
+         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
+        </a>
+        <ul class="hidden pl-8 mt-2" id="hatDropdown">
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="#">Charts of Accounts</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="disburse_records.php">Disburse Records</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="#">Collected Records</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="#">Asset Records</a>
          </li>
         </ul>
        </div>
@@ -192,65 +222,104 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
       </ol>
      </nav>
     </div>
-    <!-- Main content area -->
-    <div class="flex-1 bg-blue-100 p-6 w-full">
 
+<!-- Main content area -->
 <div class="flex-1 bg-blue-100 p-6 w-full">
      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
      <div class="w-full">
-        <h1 class="font-bold text-xl">Invoice</h1>
+        <h1 class="font-bold text-xl">Gcash</h1>
         <br>
         <div class="w-full px-4 pt-4">
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">Reference ID</th>
                     <th class="px-4 py-2">Account Name</th>
                     <th class="px-4 py-2">Requested Department</th>
+                    <th class="px-4 py-2">Mode of Payment</th>
                     <th class="px-4 py-2">Expense Categories</th>
                     <th class="px-4 py-2">Amount</th> 
-                    <th class="px-4 py-2">Description</th>
-                    <th class="px-4 py-2">Document</th>
                     <th>Payment Due</th>
-                    <th>Rejected At</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody class="text-gray-600 text-sm font-light">
-                <?php
-                 $servername = '127.0.0.1:3308';
-                 $usernameDB = 'root';
-                 $passwordDB = '';
-                 $dbname = 'db';
+            <?php
+$servername = '127.0.0.1:3308';
+$usernameDB = 'root';
+$passwordDB = '';
+$dbname = 'db';
 
-                 $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
+$conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
 
-                 if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
-                }
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
-                $sql = "SELECT * FROM rd";
-                $result = $conn->query($sql);
+// Handle approval action
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Approve logic
+    if (isset($_POST['approve_id'])) {
+        $approveId = $_POST['approve_id'];
 
-                if (!$result) {
-                    die("Invalid query: " . $connection->error);
-                }
+        // Insert into the approved disbursements table
+        $insert_sql = "INSERT INTO dr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id)
+                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id
+                       FROM cheque WHERE id = '$approveId'";
+
+        if ($conn->query($insert_sql) === TRUE) {
+            // After successful insertion, delete the row from br
+            $delete_sql = "DELETE FROM cheque WHERE id = '$approveId'";
+            if ($conn->query($delete_sql) === TRUE) {
+                echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
+            } else {
+                echo "Error deleting record: " . $conn->error;
+            }
+        } else {
+            echo "Error inserting record: " . $conn->error;
+        }
+    }
+
+}
+
+
+// Fetch records from payables table
+$sql = "SELECT * FROM cheque";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
+        echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['mode_of_payment']}</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
+        echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
+        echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
+
+        echo "<td class='py-3 px-6 text-left'>
+                <form method='POST' action=''>
+                    <input type='hidden' name='approve_id' value='{$row['id']}'>
+                    <button type='submit' class='bg-green-500 text-white px-2 py-1 mb-2 rounded'>Disburse</button>
+                </form>
+
                 
-                while($row = $result->fetch_assoc()){
-                    echo "
-                    <tr class='border-b border-gray-300 hover:bg-gray-100'>
-                        <td class='py-3 px-6 text-left'>{$row['id']}</td>
-                        <td class='py-3 px-6 text-left'>{$row['account_name']}</td>
-                        <td class='py-3 px-6 text-left'>{$row['requested_department']}</td>
-                        <td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>
-                        <td class='py-3 px-6 text-left'>" . number_format($row['amount'], 2) . "</td>
-                        <td class='py-3 px-6 text-left'>{$row['description']}</td>
-                        <td class='py-3 px-6 text-left'>{$row['document']}</td>
-                        <td class='py-3 px-6 text-left'>{$row['payment_due']}</td>
-                        <td class='py-3 px-6 text-left'>{$row['rejected_at']}</td>
-                        
-                    </tr>";
-                }
-                ?>
+              </td>";
+        echo "</tr>";
+    }
+} else {
+    echo "<tr><td colspan='5' class='text-center py-3'>No records found</td></tr>";
+}
+
+$conn->close();
+?>
+
+
+
+
                 
 
 
@@ -258,7 +327,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </table>
               </div>
     </div>
+ 
      </div>
+
+    </div>
     </div>
    </div>
   </div>
@@ -266,24 +338,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
    </div>
   </div>
 
-  <!-- Modal for Adding Employee -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" id="addEmployeeModal">
-   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-    <h2 class="text-xl font-bold mb-4">Add Employee</h2>
-    <form>
-     <div class="mb-4">
-      <label class="block text-gray-700 font-bold mb-2" for="employeeName">Employee Name</label>
-      <input class="w-full p-2 border border-gray-300 rounded-md" id="employeeName" placeholder="Enter employee name" type="text"/>
-     </div>
-     <div class="mb-4">
-      <label class="block text-gray-700 font-bold mb-2" for="employeePosition">Position</label>
-      <input class="w-full p-2 border border-gray-300 rounded-md" id="employeePosition" placeholder="Enter employee position" type="text"/>
-     </div>
-     <div class="flex justify-end">
-      <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="closeModal()" type="button">Cancel</button>
-      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Add Employee</button>
-     </div>
-    </form>
    </div>
   </div>
  </body>

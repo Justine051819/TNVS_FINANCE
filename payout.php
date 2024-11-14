@@ -97,10 +97,13 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </a>
         <ul class="hidden pl-8 mt-2" id="payrollDropdown">
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Payout Approval</a>
+          <a class="text-gray-700 font-bold" href="payout_approval.php">Payout Approval</a>
          </li>
          <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Payout</a>
+          <a class="text-gray-700 font-bold" href="payout.php">Bank Transfer Payout</a>
+         </li>
+         <li class="mb-2">
+          <a class="text-gray-700 font-bold" href="ecash.php">Ecash Payout</a>
          </li>
         </ul>
        </div>
@@ -224,15 +227,17 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 <div class="flex-1 bg-blue-100 p-6 w-full">
      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
      <div class="w-full">
-        <h1 class="font-bold text-xl">Payout</h1>
+        <h1 class="font-bold text-xl">Bank Transfer Payout</h1>
         <br>
         <div class="w-full px-4 pt-4">
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">Reference ID</th>
                     <th class="px-4 py-2">Account Name</th>
                     <th class="px-4 py-2">Requested Department</th>
+                    <th class="px-4 py-2">Mode of Payment</th>
                     <th class="px-4 py-2">Expense Categories</th>
                     <th class="px-4 py-2">Amount</th> 
                     <th class="px-4 py-2">Bank Name</th>
@@ -309,8 +314,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                                         while ($row = $result->fetch_assoc()) {
                                             echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
+                                            echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
+                                            echo "<td class='py-3 px-6 text-left'>{$row['mode_of_payment']}</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
                                             echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
                                             echo "<td class='py-3 px-6 text-left'>{$row['bank_name']}</td>";
@@ -338,6 +345,9 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
               </div>
     </div>
      </div>
+
+
+     
     </div>
    </div>
   </div>

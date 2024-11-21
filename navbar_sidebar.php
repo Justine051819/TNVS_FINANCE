@@ -58,7 +58,7 @@ $modules = [
     'payrollrecords' => 'Payroll Records',
     'auditreports' => 'Audit Reports',
     'taxemployees' => 'Employees Tax Records',
-    'taxpaidrecords' => 'Paid Tax Records',
+    'taxpaidrecords' => 'Tax Records',
 ];
 
 // Handle search query
@@ -350,7 +350,7 @@ if (!empty($searchQuery)) {
          </li>
          <li class="mb-2">
          <a href="paid_tax.php?page=taxpaidrecords" class="flex items-center font-bold <?php echo ($page == 'taxpaidrecords' ? 'text-blue-600' : 'text-gray-600'); ?>">
-           Paid Tax Records
+            Tax Records
           </a>
          </li>
         </ul>
@@ -421,7 +421,7 @@ if (!empty($searchQuery)) {
                   "Financial Statement": "financial_statement.php",
                   "Audit Reports": "audit_reports.php",
                   "Employees Tax Records": "tax_employees.php",
-                  "Paid Tax Records": "paid_tax.php",
+                  "Tax Records": "paid_tax.php",
                   "Add Budget Request":"add_ap.php"
 
                   // Add all other mappings here

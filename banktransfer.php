@@ -69,63 +69,50 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
             </thead>
             <tbody class="text-gray-900 text-sm bg-gray-100 font-semilight">
             <?php
-                                   $servername = '127.0.0.1:3308';
-                                   $usernameDB = 'root';
-                                   $passwordDB = '';
-                                   $dbname = 'db';
-                                   
-                                   $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
-                                    
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
+$servername = '127.0.0.1:3308';
+$usernameDB = 'root';
+$passwordDB = '';
+$dbname = 'db';
 
-                                    // Handle approval action
-                                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
 
-                                      // Approve logic
-                                      if (isset($_POST['approve_id'])) {
-                                          $approveId = $_POST['approve_id'];
-                                          
-                                          // Insert into the budget request table
-                                          $insert_sql = "INSERT INTO dr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM payout WHERE id = '$approveId'";
-                                          
-                                          if ($conn->query($insert_sql) === TRUE) {
-                                              // After successful insertion, delete the row
-                                              $delete_sql = "DELETE FROM payout WHERE id = '$approveId'";
-                                              if ($conn->query($delete_sql) === TRUE) {
-                                                  echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
-                                              } else {
-                                                  echo "Error deleting record: " . $conn->error;
-                                              }
-                                          } else {
-                                              echo "Error inserting record: " . $conn->error;
-                                          }
-                                      }
-                                  
-                                      // Reject logic
-                                      if (isset($_POST['reject_id'])) {
-                                          $rejectId = $_POST['reject_id'];
-                                          
-                                          // Insert into the rejected disbursement table
-                                          $insert_sql = "INSERT INTO dr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM payout WHERE id = '$rejectId'";
-                                          
-                                          if ($conn->query($insert_sql) === TRUE) {
-                                              // After successful insertion, delete the row from Accounts Payable
-                                              $delete_sql = "DELETE FROM payout WHERE id = '$rejectId'";
-                                              if ($conn->query($delete_sql) === TRUE) {
-                                                  echo "<div class='bg-red-500 text-white p-4 rounded'>Disbursement Rejected!</div>";
-                                              } else {
-                                                  echo "Error deleting record: " . $conn->error;
-                                              }
-                                          } else {
-                                              echo "Error inserting record: " . $conn->error;
-                                          }
-                                      }
-                                  }
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle approval action
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['approve_id'])) {
+        $approveId = $_POST['approve_id'];
+
+        // Insert into the dr table
+        $insert_dr_sql = "INSERT INTO dr (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
+                          SELECT account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number
+                          FROM payout 
+                          WHERE id = '$approveId'";
+
+        if ($conn->query($insert_dr_sql) === TRUE) {
+            // Update status in the tr table
+            $update_tr_sql = "UPDATE tr SET status = 'approved' WHERE id = '$approveId'";
+
+            if ($conn->query($update_tr_sql) === TRUE) {
+                // Delete the row from payout
+                $delete_sql = "DELETE FROM payout WHERE id = '$approveId'";
+                if ($conn->query($delete_sql) === TRUE) {
+                    echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved, Status Updated in TR and DR!</div>";
+                } else {
+                    echo "Error deleting record from payout: " . $conn->error;
+                }
+            } else {
+                echo "Error updating status in tr: " . $conn->error;
+            }
+        } else {
+            echo "Error inserting record into dr: " . $conn->error;
+        }
+    }
+}
+
                                   
 
                                     // Fetch records

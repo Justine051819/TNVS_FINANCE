@@ -96,8 +96,8 @@ $(window).on('click', function(event) {
         <a class="bg-blue-700 text-white px-2 py-1 rounded text-lg cursor-pointer whitespace-nowrap mb-4 float-right shadow-lg" href="add_ap.php" role="button">ADD REQUEST</a>
         <h1 class="font-bold text-2xl text-blue-900">BUDGET REQUEST</h1> 
         <br> 
-
-        <table class="min-w-full bg-white border-8 border-blue-200 shadow-2xl mt-6">
+        <div class="overflow-y-scroll h-[530px] bg-white border-8 border-blue-200">
+        <table class="min-w-full bg-white shadow-2xl">
             <thead>
                 <tr class="bg-blue-200 text-blue-900 uppercase text-sm leading-normal">
                     <th class="sticky top-0 bg-blue-200 px-2 py-2">ID</th>
@@ -301,6 +301,7 @@ $conn->close();
 
             </tbody>
         </table>
+        </div>
 </div>
         <div class="mt-6">
         <canvas id="pdf-viewer" width="600" height="400"></canvas>

@@ -15,201 +15,20 @@ if (is_user_logged_in($_SESSION['users_username'])) {
 }
 
 // Your page content here...
-?>
 
+?>
 
 <html>
  <head>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('hidden');
-    }
-
-    function toggleDropdown(id) {
-      const dropdown = document.getElementById(id);
-      const icon = dropdown.previousElementSibling.querySelector('.fas.fa-chevron-right');
-      dropdown.classList.toggle('hidden');
-      icon.classList.toggle('rotate-90');
-    }
-
-    function openModal() {
-      const modal = document.getElementById('addEmployeeModal');
-      modal.classList.remove('hidden');
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('addEmployeeModal');
-      modal.classList.add('hidden');
-    }
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/> 
+</head>
+  <body>
+  
+    
+    <?php include('navbar_sidebar.php'); ?>
 
 
-    window.onclick = function(event) {
-  const modal = document.getElementById('addEmployeeModal');
-  if (event.target === modal) {
-    closeModal();
-  }
-};
-
-  </script>
-  <style>
-   .rotate-90 {
-     transform: rotate(90deg);
-     transition: transform 0.3s ease;
-   }
-
-   .z-50 {
-  z-index: 50;
-}
-
-
-
-  </style>
- </head>  
- <body>
-  <div class="flex h-screen">
-   <!-- Sidebar -->
-   <div id="sidebar" class="w-64 bg-white p-4 z-10">
-    <div class="flex items-center mb-6">
-     <img alt="Movers logo" class="mr-2" height="200px" src="logo.png" width="250px"/>
-    </div>
-    <nav>
-     <ul>
-      <li class="mb-4">
-       <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.php">
-        <i class="fas fa-th-large mr-2"></i>
-        Dashboard
-       </a>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('employeeDropdown')">
-         <i class="fas fa-calculator mr-2"></i>
-         Budget
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="employeeDropdown">
-         <li class="mb-2">
-          <a href="budget_request.php" class="text-gray-700 font-bold">Budget Request</a>
-         </li>
-         <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">Rejected Request</a>
-         </li>
-         <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">Budget Allocation</a>
-         </li>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('payrollDropdown')">
-         <i class="fas fa-coins mr-2"></i>
-         Disbursement
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="payrollDropdown">
-        <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">Request Payout</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="approve_disbursement.php">Payout</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="reject_disbursement.php">Rejected Disbursement</a>
-         </li>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('compensationDropdown')">
-         <i class="fas fa-gift mr-2"></i>
-         Collection
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="compensationDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Compensation Plans</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Benefits Overview</a>
-         </li>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('recommendationDropdown')">
-         <i class="fas fa-landmark mr-2"></i>
-         Account Payables
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="recommendationDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="account_payable.php">Accounts Payable Invoice</a>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('hatdogDropdown')">
-         <i class="fas fa-file-invoice-dollar mr-2"></i>
-         Account Receivables
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="hatdogDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Cheese Cake</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Palaman Hatdog</a>
-         </li>
-        </ul>
-       </div>
-       <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('hatDropdown')">
-         <i class="fas fa-file-invoice-dollar mr-2"></i>
-         General Ledger
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-         <ul class="hidden pl-8 mt-2" id="hatDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Cheese Cake</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Palaman Hatdog</a>
-         </li>
-        </ul>
-        </a>
-      </li>
-      <li>
-       <a class="text-blue-600 font-bold" href="#">Report</a>
-      </li>
-     </ul>
-    </nav>
-   </div>
-   <!-- Main content -->
-   <div class="flex-1 flex flex-col">
-    <!-- Header -->
-    <header class="flex items-center justify-between bg-white p-4 shadow-lg">
-     <div class="flex items-center">
-      <button class="text-2xl mr-4" onclick="toggleSidebar()">
-       <i class="fas fa-bars"></i>
-      </button>
-      <h1 class="text-xl font-bold text-blue-600">Finance</h1>
-     </div>
-     <div class="relative">
-      <button class="flex items-center" onclick="toggleDropdown('userDropdown')">
-       <img alt="User avatar" class="rounded-full" height="40" src="user.jpg" width="40"/>
-      </button>
-      <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 hidden">
-       <a class="block px-4 py-2 text-gray-700 font-bold" href="#">Profile</a>
-       <a class="block px-4 py-2 text-gray-700 font-bold" href="#">Settings</a>
-       <a class="block px-4 py-2 text-gray-700 font-bold" href="logout.php">Logout</a>
-      </div>
-     </div>
-    </header>
     <!-- Breadcrumb -->
     <div class="bg-blue-200 p-4 shadow-lg">
      <nav class="text-gray-600 font-bold">
@@ -217,64 +36,152 @@ if (is_user_logged_in($_SESSION['users_username'])) {
        <li>
         <a class="text-gray-600 font-bold" href="TNVSFinance.php">Dashboard</a>
        </li>
-       <li>
-        <span class="mx-2">&gt;</span>
-       </li>
-       <li>
-        <a class="text-gray-600 font-bold" href="#">Finance Operator</a>
-       </li>
       </ol>
      </nav>
     </div>
     <!-- Main content area -->
     <div class="flex-1 bg-blue-100 p-6">
+        
      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
       <!-- Card 1 -->
-      <div class="bg-white p-4 rounded-lg shadow-lg">
-       <h2 class="text-xl font-bold mb-2">Total Revenue</h2>
-       <p class="text-3xl font-bold text-blue-600">100,000</p>
-      </div>
-      <!-- Card 2 -->
-      <div class="bg-white p-4 rounded-lg shadow-lg">
-       <h2 class="text-xl font-bold mb-2">Total Expenses</h2>
-       <p class="text-3xl font-bold text-blue-600">50,000</p>
-      </div>
-      <!-- Card 3 -->
-      <div class="bg-white p-4 rounded-lg shadow-lg">
-       <h2 class="text-xl font-bold mb-2">Net Profit</h2>
-       <p class="text-3xl font-bold text-blue-600">50,000</p>
-      </div>
-         <!-- Card 4 -->
-         <div class="bg-white p-4 rounded-lg shadow-lg">
-          <h2 class="text-xl font-bold mb-2">
-           Last Month Estimate Budget 
-          </h2>
-          <p class="text-3xl font-bold text-blue-600">
-           52,000
-          </p>
-         </div>
-         <!-- Card 5 -->
-         <div class="bg-white p-4 rounded-lg shadow-lg">
-          <h2 class="text-xl font-bold mb-2">
-           Actual Spending Last Month
-          </h2>
-          <p class="text-3xl font-bold text-blue-600">
-           49,000
-          </p>
-         </div>
-         <!-- Card 6 -->
-         <div class="bg-white p-4 rounded-lg shadow-lg">
-          <h2 class="text-xl font-bold mb-2">
-           Estimated Budget Next Month
-          </h2>
-          <p class="text-3xl font-bold text-blue-600">
-           52,000
-          </p>
-         </div>
-     </div>
+<!-- Card 1 -->
+<div class="bg-white p-6 rounded-lg shadow-lg w-full">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">TOTAL REVENUE</h2>
+    
+    <!-- Revenue Amount -->
+    <p class="text-3xl font-bold text-blue-600 mb-2">₱600,000</p>
+
+    <!-- Revenue Trend -->
+    <div class="flex items-center mb-4">
+        <span class="text-lg text-gray-600">Change: </span>
+        <span class="ml-2 text-green-500 font-semibold">+12.5%</span>
     </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-blue-600 h-2 rounded-full" style="width: 80%;"></div>
+    </div>
+    
+    <!-- Comparison to Last Month -->
+    <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
+        <span>Last Month</span>
+        <span>₱675,000</span>
+    </div>
+
+    <!-- Revenue Breakdown -->
+    <div class="mt-4">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Revenue Breakdown</h3>
+        <ul class="list-none text-sm text-gray-600">
+    <li>Ride Earnings: <span class="text-blue-600">₱60,000</span></li>
+    <li>Boundary Payments: <span class="text-blue-600">₱25,000</span></li>
+    <li>Services: <span class="text-blue-600">₱10,000</span></li>
+    <li>Other Revenue: <span class="text-blue-600">₱5,000</span></li>
+</ul>
+
+    </div>
+
+    <!-- Button for More Details -->
+    <div class="mt-4">
+        <a href="#" class="text-blue-600 hover:text-blue-800 font-semibold">View Details</a>
+    </div>
+</div>
+
+
+      <!-- Card 2 -->
+      <div class="bg-white p-6 rounded-lg shadow-lg w-100">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">TOTAL EXPENSES</h2>
+    
+    <!-- Total Expenses Amount -->
+    <p class="text-3xl font-bold text-red-600 mb-2">₱194,000</p>
+
+    <!-- Expense Trend -->
+    <div class="flex items-center mb-4">
+        <span class="text-lg text-gray-600">Change: </span>
+        <span class="ml-2 text-red-500 font-semibold">+8.7%</span>
+    </div>
+
+    <!-- Progress Bar (Expense Efficiency) -->
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-red-600 h-2 rounded-full" style="width: 60%;"></div>
+    </div>
+    
+    <!-- Comparison to Last Month -->
+    <div class="flex justify-between items-center text-sm text-gray-500">
+        <span>Last Month</span>
+        <span>₱177,122</span>
+    </div>
+
+    <!-- Expense Breakdown -->
+    <div class="mt-4">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Expense Breakdown</h3>
+        <ul class="list-none text-sm text-gray-600">
+            <li>Salary: <span class="text-red-600">₱25,000</li>
+            <li>Utilities:<span class="text-red-600"> ₱12,000</li>
+            <li>Repair/Maintenance:<span class="text-red-600"> ₱5,000</li>
+            <li>Extras: <span class="text-red-600">₱8,000</li>
+        </ul>
+    </div>
+
+    <!-- Button for More Details -->
+    <div class="mt-4">
+        <a href="#" class="text-blue-600 hover:text-blue-800 font-semibold">View Details</a>
+    </div>
+</div>
+
+       <!-- Card 3 -->
+       <div class="bg-white p-6 rounded-lg shadow-lg w-100">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">NET INCOME</h2>
+    
+    <!-- Net Income Amount -->
+    <p class="text-3xl font-bold text-green-600 mb-2">₱406,000</p>
+
+    <!-- Net Income Trend -->
+    <div class="flex items-center mb-4">
+        <span class="text-lg text-gray-600">Change: </span>
+        <span class="ml-2 text-green-500 font-semibold">+15.3%</span>
+    </div>
+
+    <!-- Progress Bar (Income Growth) -->
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-green-600 h-2 rounded-full" style="width: 75%;"></div>
+    </div>
+    
+    <!-- Comparison to Last Month -->
+    <div class="flex justify-between items-center text-sm text-gray-500">
+        <span>Last Month</span>
+        <span>₱497,878</span>
+    </div>
+
+    <!-- Net Income Breakdown -->
+    <div class="mt-4">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Income Breakdown</h3>
+        <ul class="list-none text-sm text-gray-600">
+            <li>Revenue:<span class="text-green-800"> ₱100,000</li>
+            <li>Rides Revenue: <span class="text-green-800">₱70,000</li>
+            <li>Boundary Revenue: <span class="text-green-800">₱70,000</li>
+            <li>Operating Expenses: <span class="text-green-800">₱15,000</li>
+        </ul>
+    </div>
+
+    <!-- Button for More Details -->
+    <div class="mt-4">
+        <a href="#" class="text-blue-600 hover:text-blue-800 font-semibold">View Details</a>
+    </div>
+</div>
+
+
+   
+
+
+
+     </div><br>
+     <?php include('monthly_sales.php'); ?>
+    </div>
+    
    </div>
   </div>
+
 
   <!-- Modal for Adding Employee -->
   </div>

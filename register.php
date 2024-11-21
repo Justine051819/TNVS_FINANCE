@@ -46,202 +46,330 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 }
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title> Registration Form </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #C5D8FF, #6296FF);
-            overflow-y: scroll;
-            height: 100vh;
-            overscroll-behavior: none;
-        }
-
-        .container {
-            width: 300px;
-            padding: 16px;
-            background-color: white;
-            margin: auto;
-            margin-top: 50px;
-            border: 1px solid black;
-            border-radius: 8px;
-        }
-
-        input[type=text], input[type=password], input[type=number] {
-            width: 100%;
-            padding: 12px 20px;
-            margin: 8px 0;
-            display: inline-block;
-            border: 1px solid #ccc;
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            position: relative; /* Added for positioning the show/hide icon */
         }
 
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f6ff;
+            font-family: Arial, sans-serif;
+            color: #333;
+            position: relative;
+            padding: 20px;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .content-wrapper {
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            gap: 50px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        header {
+            flex: 1;
+            text-align: right;
+        }
+
+        header img {
+            height: 144px;
+            transition: all 0.3s ease;
+        }
+
+        .register-container {
+            background-color: #ffffff;
+            padding: 0 30px 0px 30px;
+            width: 400px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow-y: auto;
+            height: 550px;
+            position: relative;
+        }
+
+        .register-header {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding: 30px 30px 15px 0px;
+            z-index: 10;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+            text-align: left;
+        }
+
+        label {
+            font-size: 15px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dddfe2;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            margin-top: 5px;
+        }
         button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 14px 20px;
-            margin: 8px 0;
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #0056b3; /* Default button color */
+            color: #fff;
+            font-weight: bold;
+            border-radius: 8px;
+            text-decoration: none;
             border: none;
             cursor: pointer;
             width: 100%;
+            transition: background-color 0.3s;
+            
         }
-
         button:hover {
-            opacity: 0.8;
+            background-color: #004494;
         }
 
-        .error {
-            color: red;
+        .button-container {
+            display: flex;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background-color: white;
+            padding: 20px 0;
+            margin-top: 20px;
         }
 
-        .show-password {
+        .button-container button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .register-btn {
+            background-color: #0056b3 ;
+        }
+
+        .register-btn:hover {
+            background-color:  #004494;
+        }
+
+        .cancel-btn {
+            background-color: #dc3545;
+        }
+
+        .cancel-btn:hover {
+            background-color: #c82333;
+        }
+
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container img {
             position: absolute;
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
             cursor: pointer;
-            color: #3498db; /* Change this to your desired color */
+            opacity: 0.7;
         }
 
-        .pass img{
-            width: 30px;
-            cursor: pointer;
+        .bsit {
+            position: absolute;
+            bottom: 10px;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            width: 100%;
+            text-align: center;
         }
 
-        .pass{
-            align-items: center;
-            display: flex;
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 20px;
+            }
+
+            header {
+                order: -1;
+            }
+
+            header img {
+                height: 120px;
+                margin-bottom: 0;
+            }
+
+            .register-container {
+                width: 90%;
+                max-width: 400px;
+                padding: 0 30px 0px 30px;
+            }
+
+            .register-header {
+                padding: 30px 30px 15px 0px;
+            }
+
+            .button-container button {
+                width: 100%;
+            }
+            .generatePassword{
+                width: 100%;
+            }
+
+            .bsit {
+                position: absolute;
+                margin-top: 10px;
+                bottom: 30px;
+            }
         }
+
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Add Font Awesome -->
 </head>
 <body>
-    <div class="container">
-        <h2>Register</h2>
-        <?php if (!empty($registrationError)): ?>
-            <p class="error"><?php echo $registrationError; ?></p>
-        <?php endif; ?>
-        
-        <form method="POST" action="register.php">
-            <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter username" name="username" value="<?php echo htmlspecialchars($username); ?>" required>
-
-            <label for="email"><b>Email</b></label>
-            <input type="text" placeholder="Enter email address" name="email" value="<?php echo htmlspecialchars($email); ?>" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
-
-            <label for="givenname"><b>Given name</b></label>
-            <input type="text" placeholder="Enter Given name" name="givenname" value="<?php echo htmlspecialchars($givenname); ?>" required>
-
-            <label for="initial"><b>Middle Initial</b></label>
-            <input type="text" placeholder="Enter middle initial" name="initial" value="<?php echo htmlspecialchars($initial); ?>" required>
-
-            <label for="surname"><b>Surname</b></label>
-            <input type="text" placeholder="Enter surname" name="surname" value="<?php echo htmlspecialchars($surname); ?>" required>
-
-            <label for="address"><b>Address</b></label>
-            <input type="text" placeholder="Enter address" name="address" value="<?php echo htmlspecialchars($address); ?>" required>
-
-            <label for="age"><b>Age</b></label>
-            <input type="number" placeholder="Enter your age" name="age" value="<?php echo htmlspecialchars($age); ?>" required>
-
-            <label for="contact"><b>Contact Number</b></label>
-            <input type="text" placeholder="Enter contact number" name="contact" value="<?php echo htmlspecialchars($contact); ?>" required>
-
-            <div class="pass">
-            <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" id="password" maxlength="10"required>
-            <img src="close-eye2.jpg" id="eyeicon">
+    <div class="content-wrapper">
+        <header>
+            <img src="logo.png" alt="Finance System Logo">
+        </header>
+        <div class="register-container">
+            <div class="register-header">Register</div>
+            <form action="register.php" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" name="email" placeholder="Enter email address" required>
+                </div>
+                <div class="form-group">
+                    <label for="givenname">Given Name</label>
+                    <input type="text" id="givenname" name="givenname" placeholder="Enter given name" required>
+                </div>
+                <div class="form-group">
+                    <label for="surname">Surname</label>
+                    <input type="text" id="surname" name="surname" placeholder="Enter surname" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" placeholder="Enter address" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" name="age" placeholder="Enter your age" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact">Contact Number</label>
+                    <input type="text" id="contact" name="contact" placeholder="Enter contact number" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" id="generatePassword">Generate Password</button>
+                </div>
+                <div class="password-container">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter Password" required>
+                    <img src="close-eye2.jpg" id="eyeicon">
+                </div>
+                <div class="password-container">
+                    <label for="cpassword">Confirm Password</label>
+                    <input type="password" id="cpassword" name="cpassword" placeholder="Confirm Password" required>
+                    <img src="close-eye2.jpg" id="cpass_eyeicon">
+                </div>
+                <!-- Register and Cancel buttons on the same line -->
+                <div class="button-container">
+                    <button type="submit" name="register" class="register-btn">Register</button>
+                    <a href="login.php" style="flex: 1;">
+                        <button type="button" class="cancel-btn">Cancel</button>
+                    </a>
+                </div>
+            </form>
         </div>
-        <span class="show-password" id="togglePassword1"><i class="fas fa-eye"></i></span>
-        <button type="button" id="generatePassword" class="generate-btn">Generate Password</button>
-
-        <div class="pass">
-            <label for="cpassword"><b>Confirm Password</b></label>
-            <input type="password" placeholder="Confirm Password" name="cpassword" id="cpassword" maxlength="10" required>
-            <span class="show-password" id="togglePassword2"><i class="fas fa-eye"></i></span>
-            <img src="close-eye2.jpg" id="cpass_eyeicon"> 
-            </div>
-            <button type="submit" name="register">Register</button>
-            <a href="login.php">
-                <button type="button" name="cancel">Cancel</button>
-            </a>
-        </form>
     </div>
+    <div class="bsit">&copy; BSIT</div>
 
     <script>
+        let eyeicon = document.getElementById("eyeicon");
+        let cpassEyeicon = document.getElementById("cpass_eyeicon");
+        let password = document.getElementById("password");
+        let cpassword = document.getElementById("cpassword");
 
-let eyeicon = document.getElementById("eyeicon");
-let cpassEyeicon = document.getElementById("cpass_eyeicon");
-let password = document.getElementById("password");
-let cpassword = document.getElementById("cpassword");
+        eyeicon.onclick = function () {
+            if (password.type === "password") {
+                password.type = "text";
+                eyeicon.src = "open-eye2.jpg";
+            } else {
+                password.type = "password";
+                eyeicon.src = "close-eye2.jpg";
+            }
+        };
 
-// Toggle visibility for the password field
-eyeicon.onclick = function () {
-    if (password.type === "password") {
-        password.type = "text";
-        eyeicon.src = "open-eye2.jpg";
-    } else {
-        password.type = "password";
-        eyeicon.src = "close-eye2.jpg";
-    }
-};
-
-// Toggle visibility for the confirm password field
-cpassEyeicon.onclick = function () {
-    if (cpassword.type === "password") {
-        cpassword.type = "text";
-        cpassEyeicon.src = "open-eye2.jpg";
-    } else {
-        cpassword.type = "password";
-        cpassEyeicon.src = "close-eye2.jpg";
-    }
-};
-
-
-        const togglePassword1 = document.getElementById('togglePassword1');
-        const passwordInput = document.getElementById('password');
-
-        togglePassword1.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
-
-        const togglePassword2 = document.getElementById('togglePassword2');
-        const confirmPasswordInput = document.getElementById('cpassword');
-
-        togglePassword2.addEventListener('click', function () {
-            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            confirmPasswordInput.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
+        cpassEyeicon.onclick = function () {
+            if (cpassword.type === "password") {
+                cpassword.type = "text";
+                cpassEyeicon.src = "open-eye2.jpg";
+            } else {
+                cpassword.type = "password";
+                cpassEyeicon.src = "close-eye2.jpg";
+            }
+        };
 
         document.getElementById('generatePassword').addEventListener('click', function () {
-    // Generate a base random password
-    let generatedPassword = Math.random().toString(36).slice(-9); // 9 characters
-    // Add a random capital letter
-    const randomCapitalLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-    // Concatenate the capital letter and the generated password
-    generatedPassword = randomCapitalLetter + generatedPassword;
+            let generatedPassword = Math.random().toString(36).slice(-9);
+            const randomCapitalLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            generatedPassword = randomCapitalLetter + generatedPassword;
 
-    passwordInput.value = generatedPassword;
-    confirmPasswordInput.value = generatedPassword;
+            password.value = generatedPassword;
+            cpassword.value = generatedPassword;
 
-    // Temporarily show the password
-    passwordInput.setAttribute('type', 'text');
-    confirmPasswordInput.setAttribute('type', 'text');
+            password.setAttribute('type', 'text');
+            cpassword.setAttribute('type', 'text');
 
-    // Hide it again after 3 seconds
-    setTimeout(() => {
-        passwordInput.setAttribute('type', 'password');
-        confirmPasswordInput.setAttribute('type', 'password');
-    }, 1); // Adjust the duration if needed
-});
-
+            setTimeout(() => {
+                password.setAttribute('type', 'password');
+                cpassword.setAttribute('type', 'password');
+            }, 1);
+        });
     </script>
 </body>
 </html>
+

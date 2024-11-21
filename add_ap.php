@@ -1,4 +1,15 @@
 <?php
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // Redirect to login page if not logged in
+    header("Location: login.php");
+    exit();
+}
+?>
+
+<?php
 $servername = "127.0.0.1:3308"; 
 $usernameDB = "root"; 
 $passwordDB = ""; 
@@ -44,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $reference_id = $_POST["reference_id"];  
 
     if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || 
-    empty($description) || empty($document) || empty($payment_due) || empty($mode_of_payment)) {
+    empty($description) || empty($payment_due) || empty($mode_of_payment)) {
     $errorMessage = "All fields are required!";
 } else {
 
@@ -129,11 +140,15 @@ if ($conn->query($query) === TRUE) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Employee</title>
+    <title>Request Budget</title>
 </head>
-<body class="bg-blue-300 h-screen flex items-center justify-center">
-    <div class="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl">
-        <h2 class="text-center mb-4 font-bold text-lg">Add Request</h2>
+<body class="bg-blue-200">
+    
+    <?php include('navbar_sidebar.php'); ?>
+
+
+    <div class="bg-white p-10 pb-7 pt-7 rounded-lg shadow-2xl w-full max-w-3xl mt-8 mx-auto">
+        <h1 class="text-left mb-6 font-bold text-2xl text-blue-900">BUDGET REQUEST</h1>
         
         <!-- Display Error or Success Message -->
         <?php if (!empty($errorMessage)) : ?>
@@ -152,35 +167,40 @@ if ($conn->query($query) === TRUE) {
             <div class="grid grid-cols-2 gap-4">
 
             <div class="mb-4">
-    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="reference_id">Reference ID</label>
+    <label class="block text-white  mb-1 bg-blue-800 p-1 rounded" for="reference_id">Reference ID</label>
     <input type="text" placeholder="Reference ID" id="reference_id" name="reference_id" value="<?php echo isset($reference_id) ? $reference_id : ''; ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md bg-gray-100" readonly>
 </div>
 
 
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="account_name">Account Name</label>
-                    <input type="text" placeholder="Acccount Name" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
+                    <label class="block text-white  mb-1 bg-blue-800 p-1 rounded" for="account_name">Account Name</label>
+                    <input type="text" placeholder="Account Name" id="account_name" name="account_name" value="<?php echo $account_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md  capitalize">
                 </div>
                 <div class="mb-4">
-                <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="requested_department">Requested Department</label>
+                <label class="block text-white  mb-1 bg-blue-800  p-1 rounded" for="requested_department">Requested Department</label>
     <select id="requested_department" name="requested_department" class="w-full px-2 py-1 border border-gray-300 rounded-md">
         <option value="None" <?php echo ($requested_department == 'department1') ? 'selected' : ''; ?>>Choose Option</option>
         <option value="Admin" <?php echo ($requested_department == 'department2') ? 'selected' : ''; ?>>Admin</option>
-        <option value="Core" <?php echo ($requested_department == 'department3') ? 'selected' : ''; ?>>Core</option>
-        <option value="Finance" <?php echo ($requested_department == 'department4') ? 'selected' : ''; ?>>Finance</option>
-        <option value="Human Resource" <?php echo ($requested_department == 'department5') ? 'selected' : ''; ?>>Human Resource</option>
-        <option value="Logistic" <?php echo ($requested_department == 'department6') ? 'selected' : ''; ?>>Logistic</option>
+        <option value="Core-1" <?php echo ($requested_department == 'department3') ? 'selected' : ''; ?>>Core-1</option>
+        <option value="Core-2" <?php echo ($requested_department == 'department4') ? 'selected' : ''; ?>>Core-2</option>
+        <option value="Human Resource-1" <?php echo ($requested_department == 'department5') ? 'selected' : ''; ?>>Human Resource-1</option>
+        <option value="Human Resource-2" <?php echo ($requested_department == 'department6') ? 'selected' : ''; ?>>Human Resource-2</option>
+        <option value="Human Resource-3" <?php echo ($requested_department == 'department7') ? 'selected' : ''; ?>>Human Resource-3</option>
+        <option value="Human Resource-4" <?php echo ($requested_department == 'department8') ? 'selected' : ''; ?>>Human Resource-4</option>
+        <option value="Logistics-1" <?php echo ($requested_department == 'department9') ? 'selected' : ''; ?>>Logistic-1</option>
+        <option value="Logistics-2" <?php echo ($requested_department == 'department10') ? 'selected' : ''; ?>>Logistic-2</option>
+        <option value="Finance" <?php echo ($requested_department == 'department11') ? 'selected' : ''; ?>>Finance</option>
     </select>
 </div>
 
 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="payment_due">Payment Due</label>
+                    <label class="block text-white pl-2  mb-1 bg-blue-800 p-1 rounded" for="payment_due">Payment Due</label>
                     <input type="date" id="payment_due" name="payment_due" value="<?php echo $payment_due ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
 
 
                 <div class="mb-4">
-    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="expense_categories">Expense Categories</label>
+    <label class="block text-white  mb-1 bg-blue-800 p-1 rounded" for="expense_categories">Expense Categories</label>
     <select id="expense_categories" name="expense_categories" class="w-full px-2 py-1 border border-gray-300 rounded-md" onchange="toggleExtraInput()">
         <option value="None" <?php echo ($expense_categories == 'None') ? 'selected' : ''; ?>>Choose Option</option>
         <option value="Equipment/Assets" <?php echo ($expense_categories == 'Equipment/Assets') ? 'selected' : ''; ?>>Equipments/Assets</option>
@@ -201,20 +221,20 @@ if ($conn->query($query) === TRUE) {
     </div>
 </div>
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="amount">Amount</label>
+                    <label class="block text-white mb-1 bg-blue-800 p-1 rounded" for="amount">Amount</label>
                     <input type="text" placeholder="Amount" id="amount" name="amount" value="<?php echo $amount ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="description">Description</label>
+                    <label class="block text-white mb-1 bg-blue-800 p-1 rounded" for="description">Description</label>
                     <input type="text" placeholder="Description" id="description" name="description" value="<?php echo $description ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="document">Document</label>
+                    <label class="block text-white  mb-1 bg-blue-800 p-1 rounded" for="document">Document</label>
                     <input type="file" id="document" name="document" accept=".pdf, .doc, .docx, .jpg, .png" action="add_ap.php" method="POST" enctype="multipart/form-data" value="<?php echo $document ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="mode_of_payment">Mode of Payment</label>
+                    <label class="block text-white mb-1 bg-blue-800 p-1 rounded" for="mode_of_payment">Mode of Payment</label>
                     <select id="mode_of_payment" name="mode_of_payment" class="w-full px-2 py-1 border border-gray-300 rounded-md">
                         <option value="">Select Mode</option>
                         <option value="Bank Transfer" <?php echo ($mode_of_payment == 'Bank Transfer') ? 'selected' : ''; ?>>Bank Transfer</option>
@@ -225,19 +245,19 @@ if ($conn->query($query) === TRUE) {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded text-transform:capitalize" for="bank_name">Bank/Account Name</label>
+                    <label class="block text-white  mb-1 bg-blue-800 p-1 rounded text-transform:capitalize" for="bank_name">Bank/Account Name</label>
                     <input type="text" placeholder="ex. BDO/Gcash (Optional)" id="bank_name" name="bank_name" value="<?php echo $bank_name ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md capitalize">
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/inputmask@5.0.7/dist/inputmask.min.js"></script>
 
 <div class="col-span-2 mb-4">
-    <label class="block text-white font-bold mb-1 bg-blue-500 p-1 rounded" for="bank_account_number">Account Number</label>
+    <label class="block text-white  mb-1 bg-blue-800 p-1 rounded" for="bank_account_number">Account Number</label>
     <input type="text" placeholder="ex. 1234-5678-9101-2134 (Optional)" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
 </div>
 
 <script>
     var bankAccountInput = document.getElementById('bank_account_number');
-    var im = new Inputmask('9999-9999-9999-9999-9', {
+    var im = new Inputmask('99999999999999999', {
         placeholder: ''  // Removes the underscore placeholders
     });
     im.mask(bankAccountInput);

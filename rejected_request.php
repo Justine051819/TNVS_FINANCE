@@ -76,148 +76,11 @@ function closeModal() {
 
   </style>
  </head>  
- <body class="bg-gray-900">
-  <div class="flex h-screen">
-   <!-- Sidebar -->
-   <div id="sidebar" class="w-64 bg-white p-4 shadow-lg z-10">
-    <div class="flex items-center mb-6">
-     <img alt="Movers logo" class="mr-2" height="200px" src="logo.png" width="250px"/>
-    </div>
-    <nav>
-     <ul>
-      <li class="mb-4">
-       <a class="flex items-center text-blue-600 font-bold" href="TNVSFinance.php">
-        <i class="fas fa-th-large mr-2"></i>
-        Dashboard
-       </a>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('employeeDropdown')">
-         <i class="fas fa-calculator mr-2"></i>
-         Budget
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="employeeDropdown">
-         <li class="mb-2">
-          <a href="budget_request.php" class="text-gray-700 font-bold">Budget Request</a>
-         </li>
-         <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">Rejected Request</a>
-         </li>
-         <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">Budget Allocation</a>
-         </li>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('payrollDropdown')">
-         <i class="fas fa-coins mr-2"></i>
-         Disbursement
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="payrollDropdown">
-        <li class="mb-2">
-          <a href="view_employee.php" class="text-gray-700 font-bold">Request Payout</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="approve_disbursement.php">Payout</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="reject_disbursement.php">Rejected Disbursement</a>
-         </li>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('compensationDropdown')">
-         <i class="fas fa-gift mr-2"></i>
-         Collection
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="compensationDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Compensation Plans</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Benefits Overview</a>
-         </li>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('recommendationDropdown')">
-         <i class="fas fa-landmark mr-2"></i>
-         Account Payables
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="recommendationDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="account_payable.php">Accounts Payable Invoice</a>
-        </ul>
-       </div>
-      </li>
-      <li class="mb-4">
-       <div>
-        <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('hatdogDropdown')">
-         <i class="fas fa-file-invoice-dollar mr-2"></i>
-         Account Receivables
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-        </a>
-        <ul class="hidden pl-8 mt-2" id="hatdogDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Cheese Cake</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Palaman Hatdog</a>
-         </li>
-        </ul>
-       </div>
-       <a class="flex items-center text-gray-700 font-bold cursor-pointer" onclick="toggleDropdown('hatDropdown')">
-         <i class="fas fa-file-invoice-dollar mr-2"></i>
-         General Ledger
-         <i class="fas fa-chevron-right ml-auto transition-transform duration-300"></i>
-         <ul class="hidden pl-8 mt-2" id="hatDropdown">
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Cheese Cake</a>
-         </li>
-         <li class="mb-2">
-          <a class="text-gray-700 font-bold" href="#">Palaman Hatdog</a>
-         </li>
-        </ul>
-        </a>
-      </li>
-      <li>
-       <a class="text-blue-600 font-bold" href="#">Report</a>
-      </li>
-     </ul>
-    </nav>
-   </div>
-   <!-- Main content -->
-   <div class="flex-1 flex flex-col">
-    <!-- Header -->
-    <header class="flex items-center justify-between bg-white p-4 shadow-lg">
-     <div class="flex items-center">
-      <button class="text-2xl mr-4" onclick="toggleSidebar()">
-       <i class="fas fa-bars"></i>
-      </button>
-      <h1 class="text-xl font-bold text-blue-600">Finance</h1>
-     </div>
-     <div class="relative">
-      <button class="flex items-center" onclick="toggleDropdown('userDropdown')">
-       <img alt="User avatar" class="rounded-full" height="40" src="user.jpg" width="40"/>
-      </button>
-      <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 hidden">
-       <a class="block px-4 py-2 text-gray-700 font-bold" href="#">Profile</a>
-       <a class="block px-4 py-2 text-gray-700 font-bold" href="#">Settings</a>
-       <a class="block px-4 py-2 text-gray-700 font-bold" href="logout.php">Logout</a>
-      </div>
-     </div>
-    </header>
+ <body class="bg-white">
+ <?php include('navbar_sidebar.php'); ?>
+ 
+  
+
     <!-- Breadcrumb -->
     <div class="bg-blue-200 p-4 shadow-lg">
      <nav class="text-gray-600 font-bold">
@@ -229,36 +92,39 @@ function closeModal() {
         <span class="mx-2">&gt;</span>
        </li>
        <li>
-        <a class="text-gray-600 font-bold" href="#">Finance Operator</a>
+        <a class="text-gray-600 font-bold" href="#">Budget</a>
+       </li>
+       <li>
+        <span class="mx-2">&gt;</span>
+       </li>
+       <li>
+        <a class="text-gray-600 font-bold" href="#">Rejected Request</a>
        </li>
       </ol>
      </nav>
     </div>
     <!-- Main content area -->
     <div class="flex-1 bg-blue-100 p-6">
-    <div class="flex-1 bg-blue-100 p-6 w-full">
-     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
      <div class="w-full">
-        <h1 class="font-bold text-xl">REJECTED REQUEST</h1>
-       
-        <div class="w-full px-4 pt-4">
-        <table class="min-w-full bg-white border border-gray-300">
+        <h1 class="font-bold text-2xl text-blue-900 mb-8">REJECTED REQUEST</h1> 
+        <table class="min-w-full bg-white border-8 border-blue-200 shadow-2xl">
             <thead>
-                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <tr class="bg-blue-200 text-blue-900 uppercase text-sm leading-normal">
                     <th class="px-4 py-2">ID</th>
                     <th class="px-4 py-2">Reference ID</th>
                     <th class="px-4 py-2">Account Name</th>
-                    <th class="px-4 py-2">Requested Department</th>
-                    <th class="px-4 py-2">Expense Categories</th>
+                    <th class="px-4 py-2">Department</th>
+                    <th class="px-4 py-2">MOD</th>
+                    <th class="px-4 py-2">Expense Category</th>
                     <th class="px-4 py-2">Amount</th> 
                     <th class="px-4 py-2">Description</th>
                     <th class="px-4 py-2">Document</th>
                     <th class="px-4 py-2">Payment Due</th>
-                    <th>Reason Rejected</th>
+                    <th>Reject Reason</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody class="text-gray-600 text-sm font-light">
+            <tbody class="text-gray-900 text-sm font-light">
 
             <?php
                                    $servername = '127.0.0.1:3308';
@@ -281,8 +147,8 @@ function closeModal() {
                                           $approveId = $_POST['approve_id'];
                                           
                                           // Insert into the table
-                                          $insert_sql = "INSERT INTO br (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                                                         SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM rr WHERE id = '$approveId'";
+                                          $insert_sql = "INSERT INTO br (id, reference_id, account_name, requested_department, mode_of_payment, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
+                                                         SELECT id, reference_id, account_name, requested_department, mode_of_payment, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM rr WHERE id = '$approveId'";
                                           
                                           if ($conn->query($insert_sql) === TRUE) {
                                             // After successful insertion, delete the row
@@ -312,8 +178,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id'])) {
   $reason = $_POST['reason'];
 
   // Insert into the table
-  $insert_sql = "INSERT INTO rr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                 SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM br WHERE id = '$rejectId'";
+  $insert_sql = "INSERT INTO rr (id, reference_id, account_name, requested_department, mode_of_payment, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
+                 SELECT id, reference_id, account_name, requested_department, mode_of_payment, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number FROM br WHERE id = '$rejectId'";
 
   if ($conn->query($insert_sql) === TRUE) {
       // After successful insertion, update rejection reason
@@ -339,33 +205,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id'])) {
                                     $result = $conn->query($sql);
                                     if ($result->num_rows > 0) {
                                         while ($row = $result->fetch_assoc()) {
-                                            echo "<tr class='border-b border-gray-300 hover:bg-gray-100'>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['id']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['reference_id']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['account_name']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['requested_department']}</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['expense_categories']}</td>";
-                                            echo "<td class='py-3 px-6 text-right'>" . number_format($row['amount'], 2) . "</td>";
-                                            echo "<td class='py-3 px-6 text-left'>{$row['description']}</td>";
+                                            echo "<tr class='border-b border-gray-300 hover:bg-gray-200'>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['id']}</td>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['reference_id']}</td>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['account_name']}</td>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['requested_department']}</td>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['mode_of_payment']}</td>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['expense_categories']}</td>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>" . number_format($row['amount'], 2) . "</td>";
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['description']}</td>";
                                             // Document download link
                               if (!empty($row['document']) && file_exists("files/" . $row['document'])) {
-                             echo "<td><a href='download.php?file=" . urlencode($row['document']) . "' style='color: blue; text-decoration: underline;'>Download</a></td>";
+                                echo "<td class='py-3 px-6 text-left border-r border-gray-300'><a href='download.php?file=" . urlencode($row['document']) . "' style='color: blue; text-align: center; text-decoration: underline;'>Download</a></td>";
                               } else {
                             echo "<td>No document available</td>";
                                 }
-                                            echo "<td class='py-3 px-6 text-left'>{$row['payment_due']}</td>";
-                                            echo "<td>
-                                            <button onclick=\"showModal('{$row['rejected_reason']}')\" class='text-blue-500 underline'>View Reason</button>
+                                            echo "<td class='py-3 px-6 text-left border-r border-gray-300'>{$row['payment_due']}</td>";
+                                            echo "<td class='border-r border-gray-300 text-center'>
+                                            <button onclick=\"showModal('{$row['rejected_reason']}')\" class='text-blue-500 underline '>View Reason</button>
                                           </td>";
                                           
                                             
-                                            echo "<td class='py-3 px-6 text-left'>
+                                            echo "<td class='py-0 px-6 text-left border-r'>
                                             <div class='flex justify-start items-center space-x-1'>  <!-- Reduced space between buttons -->
-                                                <!-- Edit Button -->
-                                                <a href='edit.php?id={$row['id']}' class='text-yellow-500 mb-3.5 w-8 h-8 flex justify-center items-center'>
-                                                    <i class='fas fa-edit'></i>
-                                                </a>
-
                                                   <!-- Resent Button -->
                                                 <form method='POST' action=''>
                                                     <input type='hidden' name='approve_id' value='{$row['id']}'>

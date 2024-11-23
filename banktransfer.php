@@ -87,10 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $approveId = $_POST['approve_id'];
 
         // Insert into the dr table
-        $insert_dr_sql = "INSERT INTO dr (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number)
-                          SELECT account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number
-                          FROM payout 
-                          WHERE id = '$approveId'";
+        $insert_sql = "INSERT INTO dr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id)
+        SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, 
+               CONCAT('DR-', SUBSTRING(reference_id, 4)) AS reference_id
+        FROM payout WHERE id = '$approveId'";
 
         if ($conn->query($insert_dr_sql) === TRUE) {
             // Update status in the tr table

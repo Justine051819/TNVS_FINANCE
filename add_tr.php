@@ -57,12 +57,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $query_tr->bind_param("ssssssssssss", $account_name, $requested_department, $expense_categories, $amount, $description, $document, $payment_due, $bank_name, $bank_account_number, $mode_of_payment, $reference_id, $status);
 
         if ($query_tr->execute()) {
-            // After successfully inserting into the 'tr' table, now insert into the 'br' table
-            $query_br = $conn->prepare("INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id) 
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $query_br->bind_param("sssssssssss", $account_name, $requested_department, $expense_categories, $amount, $description, $document, $payment_due, $bank_name, $bank_account_number, $mode_of_payment, $reference_id); // Use $reference_id
-
-            if ($query_br->execute()) {
+            // Get the ID of the inserted row from the `tr` table
+            $tr_id = $conn->insert_id;
+        
+            // Insert into `br` table using data from `tr`
+            $insert_br_sql = "INSERT INTO br (reference_id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment) 
+                              SELECT reference_id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment 
+                              FROM tr WHERE id = ?";
+            $stmt = $conn->prepare($insert_br_sql);
+            $stmt->bind_param("i", $tr_id);
+            
+            if ($stmt->execute()) {
+                // Update the status in the `tr` table after inserting into `br`
+                $update_tr_sql = "UPDATE tr SET status = 'in review' WHERE id = ?";
+                $stmt = $conn->prepare($update_tr_sql);
+                $stmt->bind_param("i", $tr_id);
+                $stmt->execute();
+        
                 $successMessage = "Data inserted successfully into both tables!";
                 // Redirect to a different page after successful insertion
                 header("Location: paid_tax.php");
@@ -70,11 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } else {
                 $errorMessage = "Error inserting into br: " . $conn->error;
                 // Rollback the insertion in `tr` if `br` insert fails
-                $conn->query("DELETE FROM tr WHERE reference_id = '$reference_id'");
+                $conn->query("DELETE FROM tr WHERE id = '$tr_id'");
             }
         } else {
             $errorMessage = "Error inserting into tr: " . $conn->error;
         }
+        
     }
 
 

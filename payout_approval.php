@@ -98,31 +98,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
         $conn->begin_transaction();
 
         // Determine which table to insert into based on mode_of_payment
-        if ($mode_of_payment == 'Bank Transfer') {
-            $insert_sql = "INSERT INTO payout (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
-                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
-                           FROM pa WHERE id = ?";
-        } elseif ($mode_of_payment == 'Ecash') {
-            $insert_sql = "INSERT INTO ecash (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
-                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
-                           FROM pa WHERE id = ?";
-        } elseif ($mode_of_payment == 'Cheque') {
-            $insert_sql = "INSERT INTO cheque (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
-                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
-                           FROM pa WHERE id = ?";
-        }elseif ($mode_of_payment == 'Cash') {
-            $insert_sql = "INSERT INTO cash (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
-                           SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
-                           FROM pa WHERE id = ?";
-        }else {
-            echo "<div class='bg-red-500 text-white p-4 rounded'>Invalid mode of payment: " . htmlspecialchars($mode_of_payment) . "</div>";
-            exit; // Stop execution if mode_of_payment is invalid
+        if (empty($mode_of_payment)) {
+            echo "<div class='bg-red-500 text-white p-4 rounded'>Error: Mode of payment not found or invalid for ID $approveId.</div>";
+        } else {
+            // Begin transaction
+            $conn->begin_transaction();
+        
+            // Determine which table to insert into based on mode_of_payment
+            if ($mode_of_payment == 'Bank Transfer') {
+                $insert_sql = "INSERT INTO payout (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                               SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,
+                                      CONCAT('BT-', SUBSTRING(reference_id, 4)) AS reference_id, mode_of_payment
+                               FROM pa WHERE id = ?";
+            } elseif ($mode_of_payment == 'Cash') {
+                $insert_sql = "INSERT INTO cash (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                               SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,
+                                      CONCAT('CH-', SUBSTRING(reference_id, 4)) AS reference_id, mode_of_payment
+                               FROM pa WHERE id = ?";
+            } elseif ($mode_of_payment == 'Ecash') {
+                $insert_sql = "INSERT INTO ecash (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                               SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,
+                                      CONCAT('EC-', SUBSTRING(reference_id, 4)) AS reference_id, mode_of_payment
+                               FROM pa WHERE id = ?";
+            } elseif ($mode_of_payment == 'Cheque') {
+                $insert_sql = "INSERT INTO cheque (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                               SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,
+                                      CONCAT('CQ-', SUBSTRING(reference_id, 4)) AS reference_id, mode_of_payment
+                               FROM pa WHERE id = ?";
+            } else {
+                echo "<div class='bg-red-500 text-white p-4 rounded'>Invalid mode of payment: " . htmlspecialchars($mode_of_payment) . "</div>";
+                exit; // Stop execution if mode_of_payment is invalid
+            }
+        
+            // Prepare the insert query for payment method
+            $stmt_insert = $conn->prepare($insert_sql);
+            $stmt_insert->bind_param("i", $approveId);
         }
-
-        // Prepare the insert query
-        $stmt_insert = $conn->prepare($insert_sql);
-        $stmt_insert->bind_param("i", $approveId);
-
+        
         try {
             if ($stmt_insert->execute()) {
                 // After successful insertion, delete from 'pa' table
@@ -131,6 +143,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
                 $stmt_delete->bind_param("i", $approveId);
 
                 if ($stmt_delete->execute()) {
+                    // Update status in tr table
+                    $update_tr_sql = "UPDATE tr SET status = 'disbursed' WHERE reference_id = (SELECT reference_id FROM pa WHERE id = ?)";
+                    $stmt_update_tr = $conn->prepare($update_tr_sql);
+                    $stmt_update_tr->bind_param("i", $approveId);
+                    $stmt_update_tr->execute();
+
                     // Commit transaction if both queries succeed
                     $conn->commit();
                     echo "
@@ -194,6 +212,7 @@ if ($result->num_rows > 0) {
 
 $conn->close();
 ?>
+
 
                 
 

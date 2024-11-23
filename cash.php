@@ -83,28 +83,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['approve_id'])) {
         $approveId = $_POST['approve_id'];
 
-        // Insert into the approved disbursements table
+        // Insert into the approved disbursements table with 'DR-' prefix
         $insert_sql = "INSERT INTO dr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id)
-                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id
-                       FROM cash WHERE id = '$approveId'";
+                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, 
+                              CONCAT('DR-', SUBSTRING(reference_id, 4)) AS reference_id
+                       FROM cash WHERE id = ?";
 
-        if ($conn->query($insert_sql) === TRUE) {
-            // After successful insertion, delete the row from br
-            $delete_sql = "DELETE FROM cash WHERE id = '$approveId'";
-            if ($conn->query($delete_sql) === TRUE) {
-                echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved!</div>";
+        $stmt_insert = $conn->prepare($insert_sql);
+        $stmt_insert->bind_param("i", $approveId);
+
+        if ($stmt_insert->execute()) {
+            // After successful insertion into the dr table, update the status to 'disbursed' in cash table
+            $update_status_sql = "UPDATE tr SET status = 'disbursed' WHERE id = ?";
+            $stmt_update_status = $conn->prepare($update_status_sql);
+            $stmt_update_status->bind_param("i", $approveId);
+
+            if ($stmt_update_status->execute()) {
+                // After updating the status, delete the row from cash table
+                $delete_sql = "DELETE FROM cash WHERE id = ?";
+                $stmt_delete = $conn->prepare($delete_sql);
+                $stmt_delete->bind_param("i", $approveId);
+
+                if ($stmt_delete->execute()) {
+                    echo "<div class='bg-green-500 text-white p-4 rounded'>Disbursement Approved and Status Updated to Disbursed!</div>";
+                } else {
+                    echo "Error deleting record from cash table: " . $conn->error;
+                }
             } else {
-                echo "Error deleting record: " . $conn->error;
+                echo "Error updating status to 'disbursed': " . $conn->error;
             }
         } else {
-            echo "Error inserting record: " . $conn->error;
+            echo "Error inserting into dr table: " . $conn->error;
         }
     }
-
 }
 
-
-// Fetch records from payables table
+// Fetch records from cash table
 $sql = "SELECT * FROM cash";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -124,8 +138,6 @@ if ($result->num_rows > 0) {
                     <input type='hidden' name='approve_id' value='{$row['id']}'>
                     <button type='submit' class='bg-green-500 text-white px-2 py-1'>Disburse</button>
                 </form>
-
-                
               </td>";
         echo "</tr>";
     }
@@ -135,6 +147,7 @@ if ($result->num_rows > 0) {
 
 $conn->close();
 ?>
+
 
 
 

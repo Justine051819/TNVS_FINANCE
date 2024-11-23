@@ -117,7 +117,7 @@ $(window).on('click', function(event) {
 
             
 
-<?php
+            <?php
 $servername = '127.0.0.1:3308';
 $usernameDB = 'root';
 $passwordDB = '';
@@ -139,20 +139,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
 
     try {
         // Insert into pa table
-        $insert_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
-                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment
-                       FROM br WHERE id = ?";
-        $stmt_insert = $conn->prepare($insert_sql);
-        $stmt_insert->bind_param("i", $approveId);
+        $insert_pa_sql = "INSERT INTO pa (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                          SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,
+                                 CONCAT('PA-', SUBSTRING(reference_id, 4)) AS reference_id, mode_of_payment
+                          FROM br WHERE id = ?";
+        $stmt_insert_pa = $conn->prepare($insert_pa_sql);
+        $stmt_insert_pa->bind_param("i", $approveId);
 
-        if ($stmt_insert->execute()) {
+        if ($stmt_insert_pa->execute()) {
+            // Update status in tr table
+            $update_tr_sql = "UPDATE tr SET status = 'approved' WHERE reference_id = 
+                              (SELECT reference_id FROM br WHERE id = ?)";
+            $stmt_update_tr = $conn->prepare($update_tr_sql);
+            $stmt_update_tr->bind_param("i", $approveId);
+            if (!$stmt_update_tr->execute()) {
+                throw new Exception("Error updating status in tr table: " . $stmt_update_tr->error);
+            }
+
             // Now delete from br table
             $delete_sql = "DELETE FROM br WHERE id = ?";
             $stmt_delete = $conn->prepare($delete_sql);
             $stmt_delete->bind_param("i", $approveId);
 
             if ($stmt_delete->execute()) {
-                // Commit transaction if both queries succeed
+                // Commit transaction if all queries succeed
                 $conn->commit();
                 echo "
                     <div id='success-message' class='bg-green-500 text-white p-4 rounded'>
@@ -168,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
                 throw new Exception("Error deleting record from br: " . $stmt_delete->error);
             }
         } else {
-            throw new Exception("Error inserting record into pa: " . $stmt_insert->error);
+            throw new Exception("Error inserting record into pa: " . $stmt_insert_pa->error);
         }
     } catch (Exception $e) {
         $conn->rollback();
@@ -186,8 +196,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_id']) && isset
 
     try {
         // Insert into rr table
-        $insert_sql = "INSERT INTO rr (id, reference_id, account_name, requested_department, mode_of_payment, expense_categories, amount, description, document, payment_due, rejected_reason)
-                       SELECT id, reference_id, account_name, requested_department, mode_of_payment, expense_categories, amount, description, document, payment_due, ?
+        $insert_sql = "INSERT INTO rr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, reference_id, mode_of_payment)
+                       SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,
+                              CONCAT('RR-', SUBSTRING(reference_id, 4)) AS reference_id, mode_of_payment
                        FROM br WHERE id = ?";
         $stmt_insert = $conn->prepare($insert_sql);
         $stmt_insert->bind_param("si", $reason, $rejectId);
@@ -290,10 +301,11 @@ if ($result->num_rows > 0) {
         echo "</tr>";
     }
 } else {
-    echo "<tr><td colspan='9' class='text-center'>No records found</td></tr>";
+    echo "<tr><td colspan='9' class='text-center py-2 px-6'>No requests found</td></tr>";
 }
 $conn->close();
 ?>
+
 
 
 </script>

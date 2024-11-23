@@ -222,16 +222,19 @@ if ($result->num_rows > 0) {
         echo "<td class='py-2 px-6 text-left border border-gray-300'>{$row['payment_due']}</td>";
 
         // Status column
-        echo "<td class='pt-3 px-6 text-left border border-gray-300'>
-            <div class='flex justify-start items-center space-x-1'>";
-        if ($row['status'] === 'approved') {
-            echo "<span class='bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm'>Approved</span>";
-        } elseif ($row['status'] === 'rejected') {
-            echo "<span class='bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm'>Rejected</span>";
-        } else {
-            echo "<span class='bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm'>Pending</span>";
-        }
-        echo "</div></td>";
+echo "<td class='pt-3 px-6 text-left border border-gray-300'>
+<div class='flex justify-start items-center space-x-1'>";
+if ($row['status'] === 'approved') {
+echo "<span class='bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm'>Approved</span>";
+} elseif ($row['status'] === 'rejected') {
+echo "<span class='bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm'>Rejected</span>";
+} elseif ($row['status'] === 'disbursed') {
+echo "<span class='bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm'>Disbursed</span>";
+} else {
+echo "<span class='bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm'>Pending</span>";
+}
+echo "</div></td>";
+
 
         echo "</tr>";
     }

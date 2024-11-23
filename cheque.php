@@ -88,8 +88,9 @@ $approveId = $_POST['approve_id'];
 
 // Insert into the approved disbursements table
 $insert_sql = "INSERT INTO dr (id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id)
-               SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id
-               FROM cheque WHERE id = '$approveId'";
+SELECT id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, 
+       CONCAT('DR-', SUBSTRING(reference_id, 4)) AS reference_id
+FROM cheque WHERE id = '$approveId'";
 
 if ($conn->query($insert_sql) === TRUE) {
     // After successful insertion, delete the row from br

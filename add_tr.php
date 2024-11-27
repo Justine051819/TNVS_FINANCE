@@ -50,44 +50,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         empty($description) || empty($payment_due) || empty($mode_of_payment)) {
         $errorMessage = "All fields are required!";
     } else {
-        // Insert data into `tr` (Tax Records) table
-        $query_tr = $conn->prepare("INSERT INTO tr (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id, status) 
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $status = 'pending'; // Default status
-        $query_tr->bind_param("ssssssssssss", $account_name, $requested_department, $expense_categories, $amount, $description, $document, $payment_due, $bank_name, $bank_account_number, $mode_of_payment, $reference_id, $status);
+        // Begin transaction
+        $conn->begin_transaction();
+        try {
+            // Insert data into `tr` table
+            $query_tr = $conn->prepare("INSERT INTO tr (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment, reference_id, status) 
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $status = 'pending'; // Default status
+            $query_tr->bind_param("ssssssssssss", $account_name, $requested_department, $expense_categories, $amount, $description, $document, $payment_due, $bank_name, $bank_account_number, $mode_of_payment, $reference_id, $status);
+            $query_tr->execute();
 
-        if ($query_tr->execute()) {
             // Get the ID of the inserted row from the `tr` table
             $tr_id = $conn->insert_id;
-        
+
             // Insert into `br` table using data from `tr`
             $insert_br_sql = "INSERT INTO br (reference_id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment) 
                               SELECT reference_id, account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number, mode_of_payment 
                               FROM tr WHERE id = ?";
             $stmt = $conn->prepare($insert_br_sql);
             $stmt->bind_param("i", $tr_id);
-            
-            if ($stmt->execute()) {
-                // Update the status in the `tr` table after inserting into `br`
-                $update_tr_sql = "UPDATE tr SET status = 'in review' WHERE id = ?";
-                $stmt = $conn->prepare($update_tr_sql);
-                $stmt->bind_param("i", $tr_id);
-                $stmt->execute();
-        
-                $successMessage = "Data inserted successfully into both tables!";
-                // Redirect to a different page after successful insertion
-                header("Location: paid_tax.php");
-                exit(); // Ensure the script stops executing after redirection
-            } else {
-                $errorMessage = "Error inserting into br: " . $conn->error;
-                // Rollback the insertion in `tr` if `br` insert fails
-                $conn->query("DELETE FROM tr WHERE id = '$tr_id'");
-            }
-        } else {
-            $errorMessage = "Error inserting into tr: " . $conn->error;
+            $stmt->execute();
+
+            // Update the status in the `tr` table after inserting into `br`
+            $update_tr_sql = "UPDATE tr SET status = 'in review' WHERE id = ?";
+            $stmt = $conn->prepare($update_tr_sql);
+            $stmt->bind_param("i", $tr_id);
+            $stmt->execute();
+
+            // Commit transaction
+            $conn->commit();
+
+            $successMessage = "Data inserted successfully into both tables!";
+            // Redirect to a different page after successful insertion
+            header("Location: paid_tax.php");
+            exit(); // Ensure the script stops executing after redirection
+        } catch (Exception $e) {
+            // Rollback the transaction if an error occurs
+            $conn->rollback();
+            $errorMessage = "Transaction failed: " . $e->getMessage();
         }
-        
     }
+
 
 
 

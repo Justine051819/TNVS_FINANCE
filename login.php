@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 log_user_in($username, $conn);
                 
 
-                header("Location: TNVSFinance.php"); // Redirect to TNVSFinance.php
+                header("Location: verification.php"); // Redirect to TNVSFinance.php
                 exit();
             }
         } else {

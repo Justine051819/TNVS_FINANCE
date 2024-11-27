@@ -22,6 +22,9 @@ if (is_user_logged_in($_SESSION['users_username'])) {
  <head>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/> 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
   <body>
   
@@ -170,20 +173,18 @@ if (is_user_logged_in($_SESSION['users_username'])) {
     </div>
 </div>
 
-
-   
-
-
-
-     </div><br>
-     <?php include('monthly_sales.php'); ?>
+  </div>
+<br>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 ">
+    <!-- Container for 2/3 of the width -->
+    <div class="col-span-1 md:col-span-2 bg-white rounded-lg shadow-lg">
+    <?php include('monthly_sales.php'); ?> 
     </div>
     
-   </div>
-  </div>
-
-
-  <!-- Modal for Adding Employee -->
-  </div>
+    <!-- Container for 1/3 of the width -->
+    <div class="col-span-1 bg-white rounded-lg shadow-lg">
+    <?php include('growth.php'); ?> 
+    </div>
+</div>
  </body>
 </html>

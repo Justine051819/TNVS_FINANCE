@@ -74,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FINANCE SYSTEM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* General reset */
         * {
@@ -228,6 +229,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
         }
 
+        /* Modal styling */
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+
+        #modal .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        #modal button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
         /* Media query for smaller screens (mobile view) */
         @media (max-width: 768px) {
             .content-wrapper {
@@ -269,18 +303,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 text-align: center;
             }
         }
-
     </style>
 </head>
 <body>
+
     <div class="content-wrapper">
         <header>
             <img src="logo.png" alt="Finance System Logo">
         </header>
         <div class="login-container">
             <div class="login-header">Login</div>
-            <div class="signup-link">
-                Don’t have an account? <a href="register.php">Sign up</a>
+            <div class="signup-link flex items-center">
+                <span class="mr-2">Don’t have an account?</span>
+                <button id="open-modal" class="flex items-center text-blue-600 hover:underline">
+                    click here
+                    </svg>
+                </button>
             </div>
             <form action="login.php" method="post">
                 <div class="form-group">
@@ -300,22 +338,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
         </div>
     </div>
-    <div class="bsit">&copy; BSIT</div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden">
+        <div class="modal-content">
+            <button id="close-modal">&times;</button>
+            <div class="bg-blue-500 text-white">
+            <h2>Contact Information</h2>
+            </div>
+            <p><strong>Email:</strong> <span class="flex items-center"><svg class="h-8 w-8 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <rect x="3" y="5" width="18" height="14" rx="2" />  <polyline points="3 7 12 13 21 7" /></svg> MoversFinance@gmail.com</span></p>
+
+            <p><strong>Contact#:</strong> <span class="flex items-center"><svg class="h-8 w-8 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" /></svg> +63 991 234 5678</span></p>
+
+        </div>
+    </div>
+
+    <div class="bsit">BSIT © 2024</div>
 
     <script>
-        const eyeicon = document.getElementById("eyeicon");
-        const password = document.getElementById("password");
+        // Modal control
+        const modal = document.getElementById('modal');
+        const openModalBtn = document.getElementById('open-modal');
+        const closeModalBtn = document.getElementById('close-modal');
 
-        eyeicon.onclick = function () {
-            if (password.type === "password") {
-                password.type = "text";
-                eyeicon.src = "open-eye2.jpg";
-            } else {
-                password.type = "password";
-                eyeicon.src = "close-eye2.jpg";
+        openModalBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';  // Show the modal
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';  // Hide the modal
+        });
+
+        // Close modal if clicked outside of modal content
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';  // Hide the modal
             }
-        };
+        });
+
+        // Toggle password visibility
+        const eyeIcon = document.getElementById('eyeicon');
+        const passwordInput = document.getElementById('password');
+
+        eyeIcon.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.src = 'open-eye2.jpg'; // Change icon to open eye
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.src = 'close-eye2.jpg'; // Change icon to closed eye
+            }
+        });
     </script>
+
+
 </body>
 </html>
-

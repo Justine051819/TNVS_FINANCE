@@ -39,6 +39,7 @@ $bank_account_number = "";
 $mode_of_payment = "";
 $errorMessage = "";
 $successMessage = "";
+$time_period = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Collect form data
@@ -48,13 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $amount = str_replace(',', '', $_POST["amount"]);
     $description = $_POST["description"];
     $document = $_POST["document"];
+    $time_period = $_POST["time_period"];  
     $payment_due = $_POST["payment_due"];
     $bank_name = $_POST["bank_name"];
     $bank_account_number = $_POST["bank_account_number"];
     $mode_of_payment = $_POST["mode_of_payment"];  
     $reference_id = $_POST["reference_id"];  
 
-    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || 
+    if (empty($account_name) || empty($requested_department) || empty($expense_categories) || empty($amount) || empty($time_period) || 
     empty($description) || empty($payment_due) || empty($mode_of_payment)) {
     $errorMessage = "All fields are required!";
 } else {
@@ -62,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // File upload logic...
 
     // Insert other data into database
-    $query = "INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, payment_due, bank_name, bank_account_number,  mode_of_payment, reference_id)
-              VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document', '$payment_due', '$bank_name', '$bank_account_number', '$mode_of_payment', '$reference_id')";
+    $query = "INSERT INTO br (account_name, requested_department, expense_categories, amount, description, document, time_period, payment_due, bank_name, bank_account_number,  mode_of_payment, reference_id)
+              VALUES ('$account_name', '$requested_department', '$expense_categories', '$amount', '$description', '$document','$time_period', '$payment_due', '$bank_name', '$bank_account_number', '$mode_of_payment', '$reference_id')";
 
 if ($conn->query($query) === TRUE) {
     $successMessage = "Data inserted successfully!";
@@ -254,6 +256,18 @@ if ($conn->query($query) === TRUE) {
     <label class="block text-white  mb-1 bg-blue-800 p-1 rounded" for="bank_account_number">Account Number</label>
     <input type="text" placeholder="ex. 1234-5678-9101-2134 (Optional)" id="bank_account_number" name="bank_account_number" value="<?php echo $bank_account_number ?>" class="w-full px-2 py-1 border border-gray-300 rounded-md">
 </div>
+
+<div class="mb-4">
+                    <label class="block text-white mb-1 bg-blue-800 p-1 rounded" for="time_period">Time Period</label>
+                    <select id="time_period" name="time_period" class="w-full px-2 py-1 border border-gray-300 rounded-md">
+                        <option value="">Select Mode</option>
+                        <option value="Weekly" <?php echo ($time_period == 'Weekly') ? 'selected' : ''; ?>>Weekly</option>
+                        <option value="Monthly" <?php echo ($time_period == 'Monthly') ? 'selected' : ''; ?>>Monthly</option>
+                        <option value="Annually" <?php echo ($time_period == 'Annually') ? 'selected' : ''; ?>>Annually</option>
+                        <option value="Yearly" <?php echo ($time_period == 'Yearly') ? 'selected' : ''; ?>>Yearly</option>
+                    </select>
+                </div>
+
 
 <script>
     var bankAccountInput = document.getElementById('bank_account_number');

@@ -150,12 +150,13 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 
       // Update the "Showing X - Y of Z" info
       const showingInfo = document.getElementById("showingInfo");
-      showingInfo.textContent = `Showing ${startIndex + 1} - ${endIndex} of ${filteredData.length}`;
+      showingInfo.textContent = Showing ${startIndex + 1} - ${endIndex} of ${filteredData.length};
       showingInfo.style.fontWeight = 'bold';
     }
 
+    // Use Peso sign instead of Dollar
     function formatCurrency(amount) {
-      return `$${amount.toFixed(2)}`;
+      return ₱${amount.toFixed(2)};
     }
 
     function filterData() {

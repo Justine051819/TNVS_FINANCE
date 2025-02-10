@@ -93,7 +93,12 @@ $(window).on('click', function(event) {
 <div class="flex-1 bg-blue-100 p-6 w-full">
 
      <div class="w-full">
-        <a class="bg-blue-700 text-white px-2 py-1 rounded text-lg cursor-pointer whitespace-nowrap mb-4 float-right shadow-lg" href="add_ap.php" role="button">ADD REQUEST</a>
+       <!-- Trigger Button -->
+<button onclick="openAddRequestModal()"
+    class="bg-blue-700 text-white px-2 py-1 rounded text-lg cursor-pointer whitespace-nowrap mb-4 float-right shadow-lg">
+    ADD REQUEST
+</button>
+
         <h1 class="font-bold text-2xl text-blue-900">BUDGET REQUEST</h1> 
         <br>
 
@@ -494,6 +499,56 @@ $conn->close();
     document.getElementById('confirmRejectBtn').addEventListener('click', function() {
         formToSubmit.submit(); // Submit the stored form
     });
+
+    function confirmApproval(approveId) {
+    console.log('Opening modal for approval ID:', approveId);
+    document.getElementById('confirmModal').style.display = 'flex';
+    const approveInput = document.getElementById('approve_id_' + approveId);
+    if (approveInput) {
+        approveInput.value = approveId;
+    }
+    return false; // Prevent form from submitting immediately
+}
+
+function submitApprovalForm() {
+    console.log('Submitting approval form');
+    document.querySelector('[id^="approvalForm"]').submit();
+}
+
+// Fix the closeModal function to properly target the modal
+function closeModal() {
+    console.log('Cancel button clicked');
+    document.getElementById('confirmModal').style.display = 'none';
+}
+
+// Close modal when clicking outside the modal content
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('confirmModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+});
+
+
+
+</script>
+
+<script>
+  // Open the Modal & Load the add_ap.php form in an iframe
+  function openAddRequestModal() {
+    // Show the modal
+    document.getElementById('addRequestModal').classList.remove('hidden');
+    // Set the iframe source to your form page
+    document.getElementById('addRequestIframe').src = 'add_ap.php';
+  }
+
+  // Close the Modal & Clear the iframe source (optional)
+  function closeAddRequestModal() {
+    // Hide the modal
+    document.getElementById('addRequestModal').classList.add('hidden');
+    // Optional: remove the src so the form is "reset" if opened again
+    document.getElementById('addRequestIframe').src = '';
+  }
 </script>
 
 
@@ -501,6 +556,28 @@ $conn->close();
 
         
 
-  
+  <!-- The Modal (Initially Hidden) -->
+<div id="addRequestModal"
+     class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 hidden">
+  <!-- Modal Content Wrapper -->
+  <div class="bg-white w-11/12 md:w-3/4 lg:w-1/2 rounded-lg shadow-2xl relative overflow-hidden">
+
+    <!-- Close Button (top-right) -->
+    <button onclick="closeAddRequestModal()"
+            class="absolute top-2 right-2 text-gray-700 text-2xl font-bold">&times;</button>
+
+    <!-- Iframe Container -->
+    <div class="p-4 h-[80vh]"> 
+      <!-- Tailwind's h-[80vh] sets the height to 80% of the viewport -->
+      <iframe id="addRequestIframe"
+              src=""
+              class="w-full h-full border-0"
+              title="Add Request">
+      </iframe>
+    </div>
+
+  </div>
+</div>
+
  </body>
 </html>

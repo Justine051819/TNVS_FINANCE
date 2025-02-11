@@ -3,7 +3,7 @@
   $page = $_GET['page'] ?? 'dashboard'; 
 
   $dropdowns = [
-    'budget' => ['budgetrequest', 'rejectrequest', 'budgetallocation', 'budgetestimation'],
+    'budget' => ['budgetrequest', 'rejectrequest', 'budgetallocation', 'budgetestimation', 'archive'],
     'disburse' => ['payoutapproval', 'banktransfer', 'ecash' , 'cheque' , 'cash', 'disbursedrecords'],
     'collect' => ['paymentrecords', 'arreceipts'],
     'ap' => ['iapayables', 'payables', 'apreceipts', 'payablesrecords'],
@@ -58,6 +58,7 @@ $modules = [
     'expensereports' => 'Expense Reports',
     'taxemployees' => 'Employees Tax Records',
     'taxpaidrecords' => 'Paid Tax Records',
+    'archive' => 'Archive'
 ];
 
 // Handle search query
@@ -152,6 +153,12 @@ if (!empty($searchQuery)) {
          <li class="mb-2">
          <a href="budget_estimation.php?page=budgetestimation" class="flex items-center font-bold <?php echo ($page == 'budgetestimation' ? 'text-blue-600' : 'text-gray-600'); ?>">
            Budget Estimation
+          </a>
+         </li>
+         <!-- Add Archive right below Budget Estimation -->
+         <li class="mb-2">
+         <a href="archive.php?page=archive" class="flex items-center font-bold <?php echo ($page == 'archive' ? 'text-blue-600' : 'text-gray-600'); ?>">
+           Archive
           </a>
          </li>
         </ul>
@@ -426,8 +433,6 @@ if (!empty($searchQuery)) {
                   "Paid Tax Records": "paid_tax.php",
                   "Add Budget Request":"add_ap.php",
                   "Expense Reports":"expense_reports.php",
-
-                  // Add all other mappings here
               };
 
               function showSuggestions() {

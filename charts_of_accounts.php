@@ -32,7 +32,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         <span class="mx-2">&gt;</span>
        </li>
        <li>
-        <a class="text-gray-600 font-bold" href="#">Chart of Accounts</a>
+        <a class="text-gray-600 font-bold" href="charts_of_accounts.php">Chart of Accounts</a>
        </li>
       </ol>
      </nav>
